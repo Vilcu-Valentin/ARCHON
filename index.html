@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.R.F Remote Terminal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+</head>
+<body class="scan-line-overlay">
+    <header>
+        <div class="header-top">
+            <h1>ARCHON File System</h1>
+            <div id="logo-container"></div> <!-- Empty container for logo -->
+            <div id="additional-container"></div> <!-- Empty container for future content -->
+        </div>
+        <div class="header-middle">
+            <button id="back-button">Back</button>
+            <div id="search-bar-container">
+                <input type="text" id="search-bar" placeholder="Search:">
+            </div>
+        </div>
+        <div class="header-controls">
+            <button id="action-1">Action 1</button>
+            <button id="action-2">Action 2</button>
+            <button id="action-3">Action 3</button>
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="file-system-container">
+            <div id="file-grid" class="file-grid">
+                <!-- Files will be loaded here dynamically -->
+            </div>
+        </div>
+        <div id="scroll-indicator"></div> <!-- Custom scroll indicator -->
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+body {
+    font-family: 'VT323', monospace;
+    background-color: #002c22;
+    color: #eaeaea;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+header {
+    padding: 10px;
+    border: 0.2vw solid #2bf4e3;
+    background-color: rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Top section: Logo and empty container next to the title */
+.header-top {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+}
+
+#logo-container {
+    width: 50px;
+    height: 50px;
+    background-color: #444;
+    margin-right: 20px;
+}
+
+#additional-container {
+    flex: 1; /* Flexible space for future content */
+}
+
+/* Middle section: Back button and search bar */
+.header-middle {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    margin-top: 10px;
+}
+
+#back-button {
+    margin-right: 10px;
+    padding: 5px 10px;
+    font-family: 'VT323', monospace;
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+    border: 0.2vw solid #2bf4e3;
+}
+
+#search-bar-container {
+    flex: 1;
+}
+
+#search-bar {
+    width: 100%;
+    padding: 5px;
+    font-family: 'VT323', monospace;
+    background-color: rgba(0, 0, 0, 0);
+    color: #2bf4e3;
+    border: 0.2vw solid #2bf4e3;
+}
+
+/* Bottom section: Button row */
+.header-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.header-controls button {
+    font-family: 'VT323', monospace;
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+    border: 0.2vw solid #2bf4e3;
+    padding: 5px 10px;
+}
+
+.main-container {
+    display: flex;
+    flex: 1;
+    position: relative;
+}
+
+.file-system-container {
+    width: 80%;
+    height: calc(100vh - 200px); /* Adjusted height based on viewport */
+    background-color: rgba(0, 0, 0, 0);
+    padding: 20px;
+    border-radius: 10px;
+    overflow-y: auto; /* Ensures content is scrollable */
+    scrollbar-width: none;
+}
+
+.file-system-container::-webkit-scrollbar {
+    display: none;
+}
+
+#scroll-indicator {
+    position: absolute;
+    right: 10px;
+    top: 20px;
+    width: 20px;
+    height: 80%;
+    display: none;
+}
+
+.scroll-square {
+    width: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.scan-line-overlay {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Create the scan lines */
+.scan-line-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        rgba(255, 255, 255, 0.2) 0,
+        rgba(255, 255, 255, 0.2) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none; /* Allows interaction with underlying elements */
+}
+
+.file-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Always 3 columns */
+    grid-gap: 20px;
+    overflow-y: auto;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 1vw; /* Padding scaled based on viewport width */
+    border: 0.2vw solid #077056;
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 0.2vw;
+    cursor: pointer;
+    position: relative;
+    box-sizing: border-box;
+    aspect-ratio: 5 / 1;
+    opacity: 0;
+    transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    overflow: hidden;
+    transform-origin: center;
+    width: 100%;
+    height: auto;
+}
+
+.file-item.visible {
+    animation: fadeIn 0.25s ease-out forwards;
+}
+
+.file-item:hover {
+    border: 0.3vw solid #87c67a;
+}
+
+.file-icon {
+    width: 3vw; /* Icon size responsive to viewport width */
+    height: auto; /* Maintain aspect ratio */
+    margin-right: 2vw;
+}
+
+.file-info {
+    font-family: 'VT323', monospace;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.file-name {
+    font-size: 1.75vw; /* Font size responsive to viewport width */
+    font-weight: bold;
+    color: #2bf4e3;
+}
+
+.file-date {
+    font-size: 1.25vw; /* Font size responsive to viewport width */
+    color: #87c67a;
+}
+
+.file-size {
+    position: absolute;
+    bottom: 1vw;
+    right: 1vw;
+    font-size: 1.5vw; /* Font size responsive to viewport width */
+    color: #2bf4e3;
+}
+
+.locked {
+    color: #ff6347;
+}
+
+.unlocked {
+    color: #90ee90;
+}
