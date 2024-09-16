@@ -1,6 +1,11 @@
 body {
     font-family: 'VT323', monospace;
-    background-color: #002c22;
+    background-color: #002c22; /* Fallback color */
+    background-image: url('TempIconsSaveFile/Logo.png'); /* Relative file path */
+    background-size: 50vw;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: #eaeaea;
     margin: 0;
     padding: 0;
@@ -9,8 +14,10 @@ body {
     height: 100vh;
 }
 
+
 header {
     padding: 10px;
+    margin: 10px;
     border: 0.2vw solid #2bf4e3;
     background-color: rgba(0, 0, 0, 0.2);
     display: flex;
@@ -24,13 +31,6 @@ header {
     align-items: center;
     width: 100%;
     justify-content: space-between;
-}
-
-#logo-container {
-    width: 50px;
-    height: 50px;
-    background-color: #444;
-    margin-right: 20px;
 }
 
 #additional-container {
@@ -50,8 +50,11 @@ header {
     padding: 5px 10px;
     font-family: 'VT323', monospace;
     background-color: rgba(0, 0, 0, 0);
-    color: white;
-    border: 0.2vw solid #2bf4e3;
+    color: #87c67a;
+    border: 0.2vw solid #87c67a;
+    width: 5vw;
+    height: 2.25vw;
+    font-size: 1.5vw;
 }
 
 #search-bar-container {
@@ -59,28 +62,19 @@ header {
 }
 
 #search-bar {
-    width: 100%;
+    width: 99%;
     padding: 5px;
     font-family: 'VT323', monospace;
+    height: 1.25vw;
+    font-size: 1.5vw;
     background-color: rgba(0, 0, 0, 0);
     color: #2bf4e3;
     border: 0.2vw solid #2bf4e3;
 }
 
-/* Bottom section: Button row */
-.header-controls {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 10px;
-}
-
-.header-controls button {
-    font-family: 'VT323', monospace;
-    background-color: rgba(0, 0, 0, 0);
-    color: white;
-    border: 0.2vw solid #2bf4e3;
-    padding: 5px 10px;
+::placeholder{
+    color:#87c67a;
+    font-size: 1.5vw;
 }
 
 .main-container {
@@ -90,8 +84,8 @@ header {
 }
 
 .file-system-container {
-    width: 80%;
-    height: calc(100vh - 200px); /* Adjusted height based on viewport */
+    width: 95%;
+    height: calc(100vh - 300px); /* Adjusted height based on viewport */
     background-color: rgba(0, 0, 0, 0);
     padding: 20px;
     border-radius: 10px;
@@ -108,12 +102,15 @@ header {
     right: 10px;
     top: 20px;
     width: 20px;
-    height: 80%;
-    display: none;
+    height: 94%; /* Make scroll indicator fit the full height minus padding */
+    display: flex; /* Make scroll squares flexible */
+    flex-direction: column; /* Stack the squares vertically */
+    justify-content: space-between; /* Evenly space the squares */
 }
 
 .scroll-square {
     width: 100%;
+    height: calc(100% / 5); /* Adjust this based on the number of scroll squares you want */
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -133,10 +130,10 @@ header {
     width: 100%;
     height: 100%;
     background: repeating-linear-gradient(
-        rgba(255, 255, 255, 0.2) 0,
-        rgba(255, 255, 255, 0.2) 1px,
-        transparent 1px,
-        transparent 2px
+        rgba(255, 255, 255, 0.1) 0,
+        rgba(255, 255, 255, 0.1) 1.5px,
+        transparent 1.5px,
+        transparent 3px
     );
     pointer-events: none; /* Allows interaction with underlying elements */
 }

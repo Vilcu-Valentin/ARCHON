@@ -2,5 +2,6 @@
     "document": "/Document.png",
     "text": "/Text.png",
     "file": "/File.png",
-    "mp3": "/Audio.png"
+    "audio": "/Audio.png",
+    "video": "/Video.png"
 }
