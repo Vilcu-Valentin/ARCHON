@@ -2,6 +2,99 @@ let iconConfig = {};
 let scrollIndicator;
 let totalSquares = 20; // Total number of squares in the scroll indicator
 
+function getRandomInterval(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function showFilePopup(file, fileElement) {
+    // Create the overlay
+    const overlay = document.createElement('div');
+    overlay.classList.add('modal-overlay');
+    document.body.appendChild(overlay);
+
+    // Create the popup container
+    const popup = document.createElement('div');
+    popup.classList.add('file-popup');
+
+    // Create loading bar and text elements
+    const loadingBarContainer = document.createElement('div');
+    loadingBarContainer.classList.add('loading-bar-container');
+    const loadingBar = document.createElement('div');
+    loadingBar.classList.add('loading-bar');
+    loadingBarContainer.appendChild(loadingBar);
+
+    const loadingText = document.createElement('div');
+    loadingText.classList.add('loading-text');
+    loadingText.innerText = 'Discovering file...';
+
+    // Add elements to popup
+    popup.appendChild(loadingText);
+    popup.appendChild(loadingBarContainer);
+    document.body.appendChild(popup);
+
+    // Simulate loading process
+    let progress = 0;
+    const minInterval = 100; // Minimum interval in milliseconds
+    const maxInterval = 300; // Maximum interval in milliseconds
+
+    function updateProgress() {
+        progress += 10;
+        loadingBar.style.width = progress + '%';
+
+        if (progress === 20) {
+            loadingText.innerText = 'Analyzing data...';
+        } else if (progress === 40) {
+            loadingText.innerText = 'Processing file...';
+        } else if (progress === 90) {
+            loadingText.innerText = 'Finalizing...';
+        }
+
+        if (progress >= 100) {
+            clearInterval(interval);
+
+            // Check if file is corrupted
+            if (file.corrupted) {
+                loadingText.innerText = 'WARNING: File is corrupted';
+                fileElement.classList.add('corrupted'); // Add a class to style the corrupted file
+                // Apply corrupted styles to specific parts
+                const fileNameElement = fileElement.querySelector('.file-name');
+                const fileDateElement = fileElement.querySelector('.file-date');
+                const fileSizeElement = fileElement.querySelector('.file-size');
+
+                if (fileNameElement) fileNameElement.classList.add('corrupted');
+                if (fileDateElement) fileDateElement.classList.add('corrupted');
+                if (fileSizeElement) fileSizeElement.classList.add('corrupted');
+
+                // Store the corrupted status in sessionStorage
+                sessionStorage.setItem(file.path, 'corrupted');
+
+                // Create close button
+                const closeButton = document.createElement('button');
+                closeButton.innerText = 'Close';
+                closeButton.addEventListener('click', () => {
+                    document.body.removeChild(popup);
+                    document.body.removeChild(overlay);
+                });
+                popup.appendChild(closeButton);
+            } else {
+                document.body.removeChild(popup);
+                document.body.removeChild(overlay);
+                window.open(file.path, '_blank'); // Open the file if not corrupted
+            }
+        }
+    }
+
+    // Initial call to start the loading process
+    updateProgress();
+
+    // Set interval with random timing
+    const interval = setInterval(() => {
+        updateProgress();
+    }, getRandomInterval(minInterval, maxInterval)); // Update interval is random within the specified range
+}
+
+
+
 // Fetch and load icon configuration first
 fetch('icons.json')
     .then(response => response.json())
@@ -75,15 +168,40 @@ function processQuery(query, files) {
     return filteredFiles;
 }
 
+function convertSizeToBytes(sizeString) {
+    const sizePattern = /([\d.]+)\s*(B|KB|MB|GB)/i;
+    const match = sizePattern.exec(sizeString);
+
+    if (!match) return 0; // If no match, return 0 (or handle it appropriately)
+
+    const sizeValue = parseFloat(match[1]);
+    const sizeUnit = match[2].toUpperCase();
+
+    // Convert to bytes based on the unit
+    switch (sizeUnit) {
+        case 'B':
+            return sizeValue;
+        case 'KB':
+            return sizeValue * 1000;
+        case 'MB':
+            return sizeValue * 1000000;
+        case 'GB':
+            return sizeValue * 1000000000;
+        default:
+            return 0; // Default case, shouldn't normally happen
+    }
+}
+
 function sortFiles(files, field, order) {
     return files.sort((a, b) => {
         let valueA, valueB;
+
         if (field === 'name') {
             valueA = a.name.toLowerCase();
             valueB = b.name.toLowerCase();
         } else if (field === 'size') {
-            valueA = parseFloat(a.size);
-            valueB = parseFloat(b.size);
+            valueA = convertSizeToBytes(a.size);  // Convert to bytes for comparison
+            valueB = convertSizeToBytes(b.size);  // Convert to bytes for comparison
         } else if (field === 'date') {
             valueA = new Date(a.date);
             valueB = new Date(b.date);
@@ -93,6 +211,7 @@ function sortFiles(files, field, order) {
             valueB = typeOrder.indexOf(b.type.toLowerCase());
         }
 
+        // Sorting order
         if (order === 'asc') {
             return valueA > valueB ? 1 : -1;
         } else {
@@ -100,7 +219,6 @@ function sortFiles(files, field, order) {
         }
     });
 }
-
 // Function to load the files and set up sequential loading
 function loadFiles(files) {
     const fileGrid = document.getElementById('file-grid');
@@ -108,7 +226,6 @@ function loadFiles(files) {
     files.forEach((file, index) => {
         const fileItem = document.createElement('div');
         fileItem.classList.add('file-item');
-        fileItem.classList.add(file.corrupted ? 'locked' : 'unlocked');
 
         // Determine the icon based on file type from the configuration
         const iconPath = iconConfig[file.type] || '/default.png'; // Fallback icon if type not found
@@ -123,10 +240,22 @@ function loadFiles(files) {
             <div class="file-size">${file.size}</div>
         `;
 
-        // Attach click event to open file if unlocked
-        if (!file.corrupted) {
+        // Check sessionStorage for corrupted status and apply necessary classes and styles
+        if (sessionStorage.getItem(file.path) === 'corrupted') {
+            fileItem.classList.add('corrupted'); // Apply corrupted class to the file item
+
+            // Apply corrupted styles to specific parts
+            const fileNameElement = fileItem.querySelector('.file-name');
+            const fileDateElement = fileItem.querySelector('.file-date');
+            const fileSizeElement = fileItem.querySelector('.file-size');
+
+            if (fileNameElement) fileNameElement.classList.add('corrupted');
+            if (fileDateElement) fileDateElement.classList.add('corrupted');
+            if (fileSizeElement) fileSizeElement.classList.add('corrupted');
+        } else {
+            // Attach click event to open file if not corrupted
             fileItem.addEventListener('click', () => {
-                window.open(file.path, '_blank'); // Opens the file in a new tab
+                showFilePopup(file, fileItem); // Show popup when clicked
             });
         }
 
@@ -138,9 +267,16 @@ function loadFiles(files) {
         setTimeout(() => {
             fileItem.style.transition = 'opacity 0.25s ease-out';
             fileItem.style.opacity = 1;
+
+            // After the fade-in is complete, remove the 'loading' class to make it clickable
+            setTimeout(() => {
+                fileItem.classList.remove('loading');
+            }, 250); // Duration should match the transition time (0.25s)
         }, index * 250); // Delay of 0.25s per file (sequential)
     });
 }
+
+
 
 function performSearch() {
     const query = document.getElementById('search-bar').value.trim();
