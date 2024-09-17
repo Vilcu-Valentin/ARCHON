@@ -2,10 +2,11 @@
     {
         "name": "USER MANUAL - 2024 EDITION",
         "size": "200 KB",
-        "date": "2024-01-15",
+        "date": "Event: 24-01-15",
         "type": "document",
         "path": "files/user_manual_2024.pdf",
-        "corrupted": false
+        "corrupted": false,
+        "locked": 2
     },
     {
         "name": "SYSTEM OVERVIEW REPORT",
@@ -41,7 +42,7 @@
     },
     {
         "name": "BACKUP DATA - PHASE 3",
-        "size": "2.1 GB",
+        "size": "",
         "date": "2023-09-29",
         "type": "file",
         "path": "files/backup_phase3.zip",
@@ -121,7 +122,7 @@
     },
     {
         "name": "EXPERIMENT DATA ARCHIVE - SET 4",
-        "size": "1.8 GB",
+        "size": "",
         "date": "2024-05-10",
         "type": "file",
         "path": "files/experiment_data_set_4.zip",
@@ -153,7 +154,7 @@
     },
     {
         "name": "SYSTEM LOG FILE - ERROR REPORT",
-        "size": "45 KB",
+        "size": "",
         "date": "2023-10-22",
         "type": "file",
         "path": "files/system_log_error_report.zip",

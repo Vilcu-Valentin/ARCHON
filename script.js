@@ -52,48 +52,67 @@ function showFilePopup(file, fileElement) {
         if (progress >= 100) {
             clearInterval(interval);
 
-            // Check if file is corrupted
+            // Check if the file is corrupted
             if (file.corrupted) {
                 loadingText.innerText = 'WARNING: File is corrupted';
-                fileElement.classList.add('corrupted'); // Add a class to style the corrupted file
-                // Apply corrupted styles to specific parts
-                const fileNameElement = fileElement.querySelector('.file-name');
-                const fileDateElement = fileElement.querySelector('.file-date');
-                const fileSizeElement = fileElement.querySelector('.file-size');
-
-                if (fileNameElement) fileNameElement.classList.add('corrupted');
-                if (fileDateElement) fileDateElement.classList.add('corrupted');
-                if (fileSizeElement) fileSizeElement.classList.add('corrupted');
-
-                // Store the corrupted status in sessionStorage
+                loadingText.classList.add('corrupted-text'); // Add corrupted style to the text
+                fileElement.classList.add('corrupted');
+                applyFileStyles(fileElement, 'corrupted');
                 sessionStorage.setItem(file.path, 'corrupted');
 
-                // Create close button
-                const closeButton = document.createElement('button');
-                closeButton.innerText = 'Close';
-                closeButton.addEventListener('click', () => {
-                    document.body.removeChild(popup);
-                    document.body.removeChild(overlay);
-                });
-                popup.appendChild(closeButton);
-            } else {
+                addCloseButton(popup, overlay);
+            } 
+            // Check if the file is locked
+            else if (file.locked && file.locked > 0) {
+                loadingText.innerText = `Locked by Administrator\nLevel Access Required: ${file.locked}`;
+                loadingText.classList.add('locked-text'); // Add locked style to the text
+                fileElement.classList.add('locked');
+                applyFileStyles(fileElement, 'locked');
+                sessionStorage.setItem(file.path, `locked-${file.locked}`);
+
+                addCloseButton(popup, overlay);
+            } 
+            // Otherwise, open the file normally
+            else {
                 document.body.removeChild(popup);
                 document.body.removeChild(overlay);
-                window.open(file.path, '_blank'); // Open the file if not corrupted
+                window.open(file.path, '_blank'); // Open the file if not corrupted or locked
             }
         }
     }
 
     // Initial call to start the loading process
     updateProgress();
-
-    // Set interval with random timing
-    const interval = setInterval(() => {
-        updateProgress();
-    }, getRandomInterval(minInterval, maxInterval)); // Update interval is random within the specified range
+    const interval = setInterval(() => updateProgress(), getRandomInterval(minInterval, maxInterval));
 }
 
 
+function applyFileStyles(fileElement, status) {
+    // Apply status-specific styles
+    const fileNameElement = fileElement.querySelector('.file-name');
+    const fileDateElement = fileElement.querySelector('.file-date');
+    const fileSizeElement = fileElement.querySelector('.file-size');
+
+    if (status === 'corrupted') {
+        if (fileNameElement) fileNameElement.classList.add('corrupted');
+        if (fileDateElement) fileDateElement.classList.add('corrupted');
+        if (fileSizeElement) fileSizeElement.classList.add('corrupted');
+    } else if (status === 'locked') {
+        if (fileNameElement) fileNameElement.classList.add('locked');
+        if (fileDateElement) fileDateElement.classList.add('locked');
+        if (fileSizeElement) fileSizeElement.classList.add('locked');
+    }
+}
+
+function addCloseButton(popup, overlay) {
+    const closeButton = document.createElement('button');
+    closeButton.innerText = 'Close';
+    closeButton.addEventListener('click', () => {
+        document.body.removeChild(popup);
+        document.body.removeChild(overlay);
+    });
+    popup.appendChild(closeButton);
+}
 
 // Fetch and load icon configuration first
 fetch('icons.json')
@@ -219,7 +238,8 @@ function sortFiles(files, field, order) {
         }
     });
 }
-// Function to load the files and set up sequential loading
+
+// Load files and apply sessionStorage statuses
 function loadFiles(files) {
     const fileGrid = document.getElementById('file-grid');
 
@@ -227,10 +247,7 @@ function loadFiles(files) {
         const fileItem = document.createElement('div');
         fileItem.classList.add('file-item');
 
-        // Determine the icon based on file type from the configuration
-        const iconPath = iconConfig[file.type] || '/default.png'; // Fallback icon if type not found
-
-        // Prepare HTML content
+        const iconPath = iconConfig[file.type] || '/default.png';
         fileItem.innerHTML = `
             <img class="file-icon" src="TempIconsSaveFile${iconPath}" alt="File Icon">
             <div class="file-info">
@@ -240,43 +257,28 @@ function loadFiles(files) {
             <div class="file-size">${file.size}</div>
         `;
 
-        // Check sessionStorage for corrupted status and apply necessary classes and styles
-        if (sessionStorage.getItem(file.path) === 'corrupted') {
-            fileItem.classList.add('corrupted'); // Apply corrupted class to the file item
-
-            // Apply corrupted styles to specific parts
-            const fileNameElement = fileItem.querySelector('.file-name');
-            const fileDateElement = fileItem.querySelector('.file-date');
-            const fileSizeElement = fileItem.querySelector('.file-size');
-
-            if (fileNameElement) fileNameElement.classList.add('corrupted');
-            if (fileDateElement) fileDateElement.classList.add('corrupted');
-            if (fileSizeElement) fileSizeElement.classList.add('corrupted');
+        // Check for corrupted or locked status in sessionStorage
+        const sessionStatus = sessionStorage.getItem(file.path);
+        if (sessionStatus === 'corrupted') {
+            fileItem.classList.add('corrupted');
+            applyFileStyles(fileItem, 'corrupted');
+        } else if (sessionStatus && sessionStatus.startsWith('locked')) {
+            const lockLevel = sessionStatus.split('-')[1];
+            fileItem.classList.add('locked');
+            applyFileStyles(fileItem, 'locked');
         } else {
-            // Attach click event to open file if not corrupted
-            fileItem.addEventListener('click', () => {
-                showFilePopup(file, fileItem); // Show popup when clicked
-            });
+            fileItem.addEventListener('click', () => showFilePopup(file, fileItem));
         }
 
-        // Append to grid and set opacity to 0 initially
+        // Fade-in effect
         fileItem.style.opacity = 0;
         fileGrid.appendChild(fileItem);
-
-        // Sequential fade-in effect
         setTimeout(() => {
             fileItem.style.transition = 'opacity 0.25s ease-out';
             fileItem.style.opacity = 1;
-
-            // After the fade-in is complete, remove the 'loading' class to make it clickable
-            setTimeout(() => {
-                fileItem.classList.remove('loading');
-            }, 250); // Duration should match the transition time (0.25s)
-        }, index * 250); // Delay of 0.25s per file (sequential)
+        }, index * 250);
     });
 }
-
-
 
 function performSearch() {
     const query = document.getElementById('search-bar').value.trim();

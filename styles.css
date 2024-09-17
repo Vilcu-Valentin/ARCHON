@@ -289,3 +289,31 @@ header {
 .file-size.corrupted {
     color: #f4a42b;
 }
+
+.file-item.locked {
+    border: 2px solid #f4a42b; /* Highlight corrupted files in red */
+}
+
+.file-name.locked {
+    color: #f4a42b;
+}
+
+.file-date.locked {
+  color: #c69a7a;
+}
+
+.file-size.locked {
+    color: #f4e02b;
+}
+
+/* Styles for corrupted file text */
+.corrupted-text {
+    color: red; /* Or any other color indicating corruption */
+    font-weight: bold; /* Optional: Make it stand out */
+}
+
+/* Styles for locked file text */
+.locked-text {
+    color: orange; /* Or any color indicating locked status */
+    font-weight: bold;
+}
