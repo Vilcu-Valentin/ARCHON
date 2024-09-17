@@ -68,7 +68,7 @@ function showFilePopup(file, fileElement) {
                 if (file.type === 'file') {
                     navigateToFolder(file.name);
                 } else {
-                    window.open(file.path, '_blank');
+                    openFileViewer(file);
                 }
             }
         }
@@ -76,6 +76,161 @@ function showFilePopup(file, fileElement) {
 
     updateProgress();
     const interval = setInterval(() => updateProgress(), getRandomInterval(minInterval, maxInterval));
+}
+
+function openFileViewer(file) {
+    const overlay = document.createElement('div');
+    overlay.classList.add('modal-overlay');
+    document.body.appendChild(overlay);
+
+    const viewer = document.createElement('div');
+    viewer.classList.add('file-viewer');
+
+    // Add file name display
+    const fileNameDisplay = document.createElement('div');
+    fileNameDisplay.classList.add('file-name-display');
+    fileNameDisplay.textContent = file.name;
+    viewer.appendChild(fileNameDisplay);
+
+    let content;
+    let mediaElement; // This will store the audio or video element
+    switch (file.type) {
+        case 'text':
+            content = createTextViewer(file);
+            break;
+        case 'document':
+            content = createPDFViewer(file);
+            break;
+        case 'audio':
+            ({content, mediaElement} = createAudioPlayer(file));
+            break;
+        case 'video':
+            ({content, mediaElement} = createVideoPlayer(file));
+            break;
+        default:
+            content = document.createElement('div');
+            content.textContent = 'Unsupported file type';
+    }
+
+    viewer.appendChild(content);
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Close';
+    closeButton.addEventListener('click', () => {
+        if (mediaElement) {
+            mediaElement.pause(); // Stop audio/video playback
+            mediaElement.currentTime = 0; // Reset to beginning
+        }
+        document.body.removeChild(viewer);
+        document.body.removeChild(overlay);
+    });
+    viewer.appendChild(closeButton);
+
+    document.body.appendChild(viewer);
+}
+
+function createTextViewer(file) {
+    const textContainer = document.createElement('div');
+    textContainer.classList.add('text-viewer');
+
+    fetch(file.path)
+        .then(response => response.text())
+        .then(text => {
+            textContainer.textContent = text;
+        })
+        .catch(error => {
+            console.error('Error loading text file:', error);
+            textContainer.textContent = 'Error loading file';
+        });
+
+    return textContainer;
+}
+
+function createPDFViewer(file) {
+    const pdfContainer = document.createElement('div');
+    pdfContainer.classList.add('pdf-viewer');
+
+    const pdfEmbed = document.createElement('embed');
+    pdfEmbed.src = file.path;
+    pdfEmbed.type = 'application/pdf';
+    pdfEmbed.width = '100%';
+    pdfEmbed.height = '100%';
+
+    pdfContainer.appendChild(pdfEmbed);
+
+    return pdfContainer;
+}
+
+function createAudioPlayer(file) {
+    const audioContainer = document.createElement('div');
+    audioContainer.classList.add('audio-player');
+
+    const audio = document.createElement('audio');
+    audio.src = file.path;
+
+    const playPauseButton = document.createElement('button');
+    playPauseButton.textContent = 'Play';
+    playPauseButton.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play();
+            playPauseButton.textContent = 'Pause';
+        } else {
+            audio.pause();
+            playPauseButton.textContent = 'Play';
+        }
+    });
+
+    const timeDisplay = document.createElement('span');
+    timeDisplay.classList.add('time-display');
+
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = 0;
+    slider.max = 100;
+    slider.value = 0;
+
+    slider.addEventListener('input', () => {
+        const time = (slider.value / 100) * audio.duration;
+        audio.currentTime = time;
+    });
+
+    audio.addEventListener('loadedmetadata', () => {
+        timeDisplay.textContent = `0:00 - ${formatTime(audio.duration)}`;
+    });
+
+    audio.addEventListener('timeupdate', () => {
+        const currentTime = formatTime(audio.currentTime);
+        const duration = formatTime(audio.duration);
+        timeDisplay.textContent = `${currentTime} - ${duration}`;
+        slider.value = (audio.currentTime / audio.duration) * 100;
+    });
+
+    audioContainer.appendChild(playPauseButton);
+    audioContainer.appendChild(slider);
+    audioContainer.appendChild(timeDisplay);
+
+    return {content: audioContainer, mediaElement: audio};
+}
+
+function createVideoPlayer(file) {
+    const videoContainer = document.createElement('div');
+    videoContainer.classList.add('video-player');
+
+    const video = document.createElement('video');
+    video.src = file.path;
+    video.controls = true;
+    video.width = '100%';
+    video.height = 'auto';
+
+    videoContainer.appendChild(video);
+
+    return {content: videoContainer, mediaElement: video};
+}
+
+function formatTime(time) {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
 function applyFileStyles(fileElement, status) {

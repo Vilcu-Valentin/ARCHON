@@ -1,5 +1,45 @@
 [
     {
+        "name": "DOCUMENT 1",
+        "size": "",
+        "date": "2024-07-18",
+        "type": "text",
+        "path": "files/doc1.txt",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "root"
+    },
+    {
+        "name": "DOCUMENT 2",
+        "size": "",
+        "date": "2024-07-18",
+        "type": "document",
+        "path": "files/doc2.pdf",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "root"
+    },
+    {
+        "name": "DOCUMENT 3",
+        "size": "",
+        "date": "2024-07-18",
+        "type": "audio",
+        "path": "files/doc3.mp3",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "root"
+    },
+    {
+        "name": "DOCUMENT 4",
+        "size": "",
+        "date": "2024-07-18",
+        "type": "video",
+        "path": "files/doc4.mp4",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "root"
+    },
+    {
         "name": "SYSTEM LOGS",
         "size": "",
         "date": "2024-07-18",
@@ -13,8 +53,8 @@
         "name": "ERROR REPORT - 2023",
         "size": "75 KB",
         "date": "2023-12-01",
-        "type": "document",
-        "path": "files/system_logs/error_report_2023.docx",
+        "type": "audio",
+        "path": "files/doc3.mp3",
         "corrupted": false,
         "locked": 0,
         "parent": "SYSTEM LOGS"
