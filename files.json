@@ -1,163 +1,192 @@
 [
     {
-        "name": "USER MANUAL - 2024 EDITION",
-        "size": "200 KB",
-        "date": "Event: 24-01-15",
-        "type": "document",
-        "path": "files/user_manual_2024.pdf",
+        "name": "SYSTEM LOGS",
+        "size": "",
+        "date": "2024-07-18",
+        "type": "file",
+        "path": "files/system_logs/",
         "corrupted": false,
-        "locked": 2
+        "locked": 0,
+        "parent": "root"
     },
     {
-        "name": "SYSTEM OVERVIEW REPORT",
+        "name": "ERROR REPORT - 2023",
         "size": "75 KB",
-        "date": "2023-11-03",
-        "type": "document",
-        "path": "files/system_overview_report.docx",
-        "corrupted": true
-    },
-    {
-        "name": "SURVEILLANCE FOOTAGE - SECURE AREA 7",
-        "size": "500 MB",
-        "date": "2024-02-20",
-        "type": "video",
-        "path": "files/surveillance_footage_area7.mp4",
-        "corrupted": false
-    },
-    {
-        "name": "ANOMALY INTERVIEW RECORDING",
-        "size": "12 MB",
-        "date": "2023-10-12",
-        "type": "audio",
-        "path": "files/anomaly_interview.mp3",
-        "corrupted": false
-    },
-    {
-        "name": "CONFIGURATION FILE - SYSTEM BETA",
-        "size": "8 KB",
-        "date": "2024-04-01",
-        "type": "text",
-        "path": "files/config_system_beta.txt",
-        "corrupted": false
-    },
-    {
-        "name": "BACKUP DATA - PHASE 3",
-        "size": "",
-        "date": "2023-09-29",
-        "type": "file",
-        "path": "files/backup_phase3.zip",
-        "corrupted": true
-    },
-    {
-        "name": "DEVELOPER NOTES - VERSION 1.3",
-        "size": "45 KB",
-        "date": "2024-05-16",
-        "type": "document",
-        "path": "files/developer_notes_v1_3.pdf",
-        "corrupted": false
-    },
-    {
-        "name": "RESEARCH FINDINGS - ANOMALY X",
-        "size": "150 KB",
-        "date": "2024-03-21",
-        "type": "document",
-        "path": "files/research_findings_anomaly_x.docx",
-        "corrupted": false
-    },
-    {
-        "name": "FIELD TEST RECORDING - DEVICE 7",
-        "size": "4 MB",
-        "date": "2023-11-09",
-        "type": "audio",
-        "path": "files/field_test_device7.mp3",
-        "corrupted": false
-    },
-    {
-        "name": "TRAINING VIDEO - MODULE 5",
-        "size": "120 MB",
-        "date": "2024-06-12",
-        "type": "video",
-        "path": "files/training_video_module5.mp4",
-        "corrupted": false
-    },
-    {
-        "name": "RESEARCH DATA - EXPERIMENT ALPHA",
-        "size": "300 KB",
-        "date": "2024-02-15",
-        "type": "document",
-        "path": "files/research_data_experiment_alpha.pdf",
-        "corrupted": false
-    },
-    {
-        "name": "SYSTEM CONFIGURATION FILE - 2.1",
-        "size": "10 KB",
-        "date": "2024-03-05",
-        "type": "text",
-        "path": "files/system_configuration_2_1.txt",
-        "corrupted": false
-    },
-    {
-        "name": "SECURITY FOOTAGE - MAIN ENTRANCE",
-        "size": "750 MB",
-        "date": "2024-07-08",
-        "type": "video",
-        "path": "files/security_footage_main_entrance.mp4",
-        "corrupted": true
-    },
-    {
-        "name": "DEVICE TEST AUDIO - VERSION 3.2",
-        "size": "5 MB",
         "date": "2023-12-01",
-        "type": "audio",
-        "path": "files/device_test_audio_version_3_2.mp3",
-        "corrupted": false
-    },
-    {
-        "name": "OPERATIONS MANUAL - SECTOR 9",
-        "size": "120 KB",
-        "date": "2024-01-28",
         "type": "document",
-        "path": "files/operations_manual_sector_9.docx",
-        "corrupted": false
+        "path": "files/system_logs/error_report_2023.docx",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "SYSTEM LOGS"
     },
     {
-        "name": "EXPERIMENT DATA ARCHIVE - SET 4",
+        "name": "ARCHIVE",
         "size": "",
-        "date": "2024-05-10",
+        "date": "2024-01-10",
         "type": "file",
-        "path": "files/experiment_data_set_4.zip",
-        "corrupted": false
+        "path": "files/archive/",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "SYSTEM LOGS"
     },
     {
-        "name": "TRAINING MODULE - BASIC OPERATIONS",
-        "size": "80 MB",
-        "date": "2024-08-20",
-        "type": "video",
-        "path": "files/training_module_basic_operations.mp4",
-        "corrupted": false
+        "name": "PROJECT DOCUMENTATION",
+        "size": "",
+        "date": "2024-03-14",
+        "type": "file",
+        "path": "files/project_docs/",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "root"
     },
     {
-        "name": "FIELD AUDIO RECORD - SESSION 2",
-        "size": "7 MB",
-        "date": "2023-11-15",
+        "name": "PHASE 1 - RESEARCH NOTES",
+        "size": "55 KB",
+        "date": "2023-06-21",
+        "type": "document",
+        "path": "files/project_docs/phase1_research_notes.pdf",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "PROJECT DOCUMENTATION"
+    },
+    {
+        "name": "PHASE 2 - REPORT",
+        "size": "120 KB",
+        "date": "2023-08-11",
+        "type": "document",
+        "path": "files/project_docs/phase2_report.docx",
+        "corrupted": true,
+        "locked": 0,
+        "parent": "PROJECT DOCUMENTATION"
+    },
+    {
+        "name": "FIELD OPERATIONS",
+        "size": "",
+        "date": "2024-04-05",
+        "type": "file",
+        "path": "files/field_operations/",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "PROJECT DOCUMENTATION"
+    },
+    {
+        "name": "DEVICE TESTS",
+        "size": "",
+        "date": "2024-05-20",
+        "type": "file",
+        "path": "files/field_operations/device_tests/",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "FIELD OPERATIONS"
+    },
+    {
+        "name": "DEVICE 003 - AUDIO LOG",
+        "size": "8 MB",
+        "date": "2024-06-11",
         "type": "audio",
-        "path": "files/field_audio_session_2.mp3",
-        "corrupted": false
+        "path": "files/field_operations/device_tests/device003_audio.mp3",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "DEVICE TESTS"
     },
     {
-        "name": "CONFIGURATION NOTES - INTERNAL TEST",
-        "size": "25 KB",
-        "date": "2024-06-30",
-        "type": "text",
-        "path": "files/configuration_notes_internal_test.txt",
-        "corrupted": true
+        "name": "DEVICE 004 - VIDEO FEED",
+        "size": "100 MB",
+        "date": "2024-06-15",
+        "type": "video",
+        "path": "files/field_operations/device_tests/device004_video.mp4",
+        "corrupted": true,
+        "locked": 0,
+        "parent": "DEVICE TESTS"
     },
     {
-        "name": "SYSTEM LOG FILE - ERROR REPORT",
+        "name": "SECURITY FOOTAGE",
         "size": "",
         "date": "2023-10-22",
         "type": "file",
-        "path": "files/system_log_error_report.zip",
-        "corrupted": false
+        "path": "files/security_footage/",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "root"
+    },
+    {
+        "name": "LOBBY CAMERA 1",
+        "size": "450 MB",
+        "date": "2023-11-05",
+        "type": "video",
+        "path": "files/security_footage/lobby_camera1.mp4",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "SECURITY FOOTAGE"
+    },
+    {
+        "name": "LAB CAMERA 2",
+        "size": "520 MB",
+        "date": "2023-11-07",
+        "type": "video",
+        "path": "files/security_footage/lab_camera2.mp4",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "SECURITY FOOTAGE"
+    },
+    {
+        "name": "PERSONNEL FILES",
+        "size": "",
+        "date": "2024-02-10",
+        "type": "file",
+        "path": "files/personnel_files/",
+        "corrupted": false,
+        "locked": 1,
+        "parent": "root"
+    },
+    {
+        "name": "ARCHIVED COMMUNICATIONS",
+        "size": "",
+        "date": "2024-07-01",
+        "type": "file",
+        "path": "files/archived_communications/",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "root"
+    },
+    {
+        "name": "EMAIL THREAD - ANOMALY 19",
+        "size": "35 KB",
+        "date": "2023-09-25",
+        "type": "document",
+        "path": "files/archived_communications/email_anomaly19.txt",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "ARCHIVED COMMUNICATIONS"
+    },
+    {
+        "name": "ARCHON SERVER BACKUPS",
+        "size": "",
+        "date": "2023-07-10",
+        "type": "file",
+        "path": "files/archon_server_backups/",
+        "corrupted": true,
+        "locked": 0,
+        "parent": "root"
+    },
+    {
+        "name": "PHASE 3",
+        "size": "",
+        "date": "2023-09-29",
+        "type": "file",
+        "path": "files/archon_server_backups/phase3/",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "ARCHON SERVER BACKUPS"
+    },
+    {
+        "name": "BACKUP LOG",
+        "size": "20 KB",
+        "date": "2023-09-29",
+        "type": "text",
+        "path": "files/archon_server_backups/phase3/backup_log.txt",
+        "corrupted": false,
+        "locked": 0,
+        "parent": "PHASE 3"
     }
 ]

@@ -1,22 +1,20 @@
 let iconConfig = {};
 let scrollIndicator;
-let totalSquares = 20; // Total number of squares in the scroll indicator
+let totalSquares = 20;
+let currentPath = 'root';
 
 function getRandomInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function showFilePopup(file, fileElement) {
-    // Create the overlay
     const overlay = document.createElement('div');
     overlay.classList.add('modal-overlay');
     document.body.appendChild(overlay);
 
-    // Create the popup container
     const popup = document.createElement('div');
     popup.classList.add('file-popup');
 
-    // Create loading bar and text elements
     const loadingBarContainer = document.createElement('div');
     loadingBarContainer.classList.add('loading-bar-container');
     const loadingBar = document.createElement('div');
@@ -27,15 +25,13 @@ function showFilePopup(file, fileElement) {
     loadingText.classList.add('loading-text');
     loadingText.innerText = 'Discovering file...';
 
-    // Add elements to popup
     popup.appendChild(loadingText);
     popup.appendChild(loadingBarContainer);
     document.body.appendChild(popup);
 
-    // Simulate loading process
     let progress = 0;
-    const minInterval = 100; // Minimum interval in milliseconds
-    const maxInterval = 300; // Maximum interval in milliseconds
+    const minInterval = 100;
+    const maxInterval = 300;
 
     function updateProgress() {
         progress += 10;
@@ -52,43 +48,37 @@ function showFilePopup(file, fileElement) {
         if (progress >= 100) {
             clearInterval(interval);
 
-            // Check if the file is corrupted
             if (file.corrupted) {
                 loadingText.innerText = 'WARNING: File is corrupted';
-                loadingText.classList.add('corrupted-text'); // Add corrupted style to the text
+                loadingText.classList.add('corrupted-text');
                 fileElement.classList.add('corrupted');
                 applyFileStyles(fileElement, 'corrupted');
                 sessionStorage.setItem(file.path, 'corrupted');
-
                 addCloseButton(popup, overlay);
-            } 
-            // Check if the file is locked
-            else if (file.locked && file.locked > 0) {
+            } else if (file.locked && file.locked > 0) {
                 loadingText.innerText = `Locked by Administrator\nLevel Access Required: ${file.locked}`;
-                loadingText.classList.add('locked-text'); // Add locked style to the text
+                loadingText.classList.add('locked-text');
                 fileElement.classList.add('locked');
                 applyFileStyles(fileElement, 'locked');
                 sessionStorage.setItem(file.path, `locked-${file.locked}`);
-
                 addCloseButton(popup, overlay);
-            } 
-            // Otherwise, open the file normally
-            else {
+            } else {
                 document.body.removeChild(popup);
                 document.body.removeChild(overlay);
-                window.open(file.path, '_blank'); // Open the file if not corrupted or locked
+                if (file.type === 'file') {
+                    navigateToFolder(file.name);
+                } else {
+                    window.open(file.path, '_blank');
+                }
             }
         }
     }
 
-    // Initial call to start the loading process
     updateProgress();
     const interval = setInterval(() => updateProgress(), getRandomInterval(minInterval, maxInterval));
 }
 
-
 function applyFileStyles(fileElement, status) {
-    // Apply status-specific styles
     const fileNameElement = fileElement.querySelector('.file-name');
     const fileDateElement = fileElement.querySelector('.file-date');
     const fileSizeElement = fileElement.querySelector('.file-size');
@@ -114,31 +104,50 @@ function addCloseButton(popup, overlay) {
     popup.appendChild(closeButton);
 }
 
-// Fetch and load icon configuration first
-fetch('icons.json')
-    .then(response => response.json())
-    .then(data => {
-        iconConfig = data;
-        return fetch('files.json');
-    })
-    .then(response => response.json())
-    .then(data => {
-        loadFiles(data);
-        initializeScrollIndicator(); // Initialize the scroll indicator after files are loaded
-    })
-    .catch(error => console.error('Error loading files:', error));
+function navigateToFolder(folderName) {
+    currentPath = currentPath === 'root' ? folderName : `${currentPath}/${folderName}`;
+    updateFilePath();
+    loadFilesForCurrentPath();
+}
+
+function updateFilePath() {
+    const filePathElement = document.getElementById('file-path');
+    filePathElement.innerHTML = `<b>File path:</b> ${currentPath}/`;
+}
+
+function loadFilesForCurrentPath() {
+    fetch('files.json')
+        .then(response => response.json())
+        .then(data => {
+            const filteredFiles = data.filter(file => file.parent === currentPath);
+            loadFiles(filteredFiles);
+            initializeScrollIndicator();
+        })
+        .catch(error => console.error('Error loading files:', error));
+}
 
 document.getElementById('search-bar').addEventListener('input', filterFiles);
+document.getElementById('back-button').addEventListener('click', navigateBack);
+
+function navigateBack() {
+    if (currentPath !== 'root') {
+        const pathParts = currentPath.split('/');
+        pathParts.pop();
+        currentPath = pathParts.join('/') || 'root';
+        updateFilePath();
+        loadFilesForCurrentPath();
+    }
+}
 
 function filterFiles() {
     const query = document.getElementById('search-bar').value.trim();
     const fileGrid = document.getElementById('file-grid');
-    fileGrid.innerHTML = ''; // Clear current files
+    fileGrid.innerHTML = '';
 
     fetch('files.json')
         .then(response => response.json())
         .then(files => {
-            const filteredFiles = processQuery(query, files);
+            const filteredFiles = processQuery(query, files.filter(file => file.parent === currentPath));
             loadFiles(filteredFiles);
         })
         .catch(error => console.error('Error filtering files:', error));
@@ -149,26 +158,21 @@ function processQuery(query, files) {
     let sortOrder = null;
     let sortField = null;
 
-    // Check for tags like <document> or sorting indicators like %>name%
     const tagPattern = /<([^>]+)>/g;
     const sortPattern = /%([<>])([^%]+)%/g;
 
     let match;
-    // Extract tags
     while ((match = tagPattern.exec(query)) !== null) {
         filters.push(match[1].toLowerCase());
     }
 
-    // Extract sorting
     while ((match = sortPattern.exec(query)) !== null) {
         sortOrder = match[1] === '>' ? 'asc' : 'desc';
         sortField = match[2].toLowerCase();
     }
 
-    // Remove tags and sorting from the search query
     query = query.replace(tagPattern, '').replace(sortPattern, '').trim().toLowerCase();
 
-    // Filter files based on the query and tags
     let filteredFiles = files.filter(file => {
         const fileType = file.type.toLowerCase();
         const fileName = file.name.toLowerCase();
@@ -179,7 +183,6 @@ function processQuery(query, files) {
         return matchesType && matchesName;
     });
 
-    // Sort the files if a sort order is defined
     if (sortField) {
         filteredFiles = sortFiles(filteredFiles, sortField, sortOrder);
     }
@@ -191,23 +194,17 @@ function convertSizeToBytes(sizeString) {
     const sizePattern = /([\d.]+)\s*(B|KB|MB|GB)/i;
     const match = sizePattern.exec(sizeString);
 
-    if (!match) return 0; // If no match, return 0 (or handle it appropriately)
+    if (!match) return 0;
 
     const sizeValue = parseFloat(match[1]);
     const sizeUnit = match[2].toUpperCase();
 
-    // Convert to bytes based on the unit
     switch (sizeUnit) {
-        case 'B':
-            return sizeValue;
-        case 'KB':
-            return sizeValue * 1000;
-        case 'MB':
-            return sizeValue * 1000000;
-        case 'GB':
-            return sizeValue * 1000000000;
-        default:
-            return 0; // Default case, shouldn't normally happen
+        case 'B': return sizeValue;
+        case 'KB': return sizeValue * 1000;
+        case 'MB': return sizeValue * 1000000;
+        case 'GB': return sizeValue * 1000000000;
+        default: return 0;
     }
 }
 
@@ -219,8 +216,8 @@ function sortFiles(files, field, order) {
             valueA = a.name.toLowerCase();
             valueB = b.name.toLowerCase();
         } else if (field === 'size') {
-            valueA = convertSizeToBytes(a.size);  // Convert to bytes for comparison
-            valueB = convertSizeToBytes(b.size);  // Convert to bytes for comparison
+            valueA = convertSizeToBytes(a.size);
+            valueB = convertSizeToBytes(b.size);
         } else if (field === 'date') {
             valueA = new Date(a.date);
             valueB = new Date(b.date);
@@ -230,18 +227,13 @@ function sortFiles(files, field, order) {
             valueB = typeOrder.indexOf(b.type.toLowerCase());
         }
 
-        // Sorting order
-        if (order === 'asc') {
-            return valueA > valueB ? 1 : -1;
-        } else {
-            return valueA < valueB ? 1 : -1;
-        }
+        return order === 'asc' ? (valueA > valueB ? 1 : -1) : (valueA < valueB ? 1 : -1);
     });
 }
 
-// Load files and apply sessionStorage statuses
 function loadFiles(files) {
     const fileGrid = document.getElementById('file-grid');
+    fileGrid.innerHTML = '';
 
     files.forEach((file, index) => {
         const fileItem = document.createElement('div');
@@ -257,7 +249,6 @@ function loadFiles(files) {
             <div class="file-size">${file.size}</div>
         `;
 
-        // Check for corrupted or locked status in sessionStorage
         const sessionStatus = sessionStorage.getItem(file.path);
         if (sessionStatus === 'corrupted') {
             fileItem.classList.add('corrupted');
@@ -270,7 +261,6 @@ function loadFiles(files) {
             fileItem.addEventListener('click', () => showFilePopup(file, fileItem));
         }
 
-        // Fade-in effect
         fileItem.style.opacity = 0;
         fileGrid.appendChild(fileItem);
         setTimeout(() => {
@@ -280,116 +270,30 @@ function loadFiles(files) {
     });
 }
 
-function performSearch() {
-    const query = document.getElementById('search-bar').value.trim();
-    
-    if (query === '') {
-        alert('Please enter a search term');
-        return;
-    }
-
-    const queryParts = query.split('%');
-    let filterTags = [];
-    let sortOrder = null;
-    
-    // Handle sorting part (if it exists in the query)
-    if (queryParts.length > 1) {
-        sortOrder = queryParts[1].trim();
-    }
-
-    const fileTypes = ['document', 'text', 'file', 'audio', 'video'];
-    const filteredFiles = files.filter(file => {
-        const fileName = file.name.toLowerCase();
-        let match = false;
-        
-        // Extract tags
-        filterTags = query.match(/<.*?>/g);
-        if (filterTags) {
-            filterTags = filterTags.map(tag => tag.replace(/[<>]/g, '').toLowerCase());
-        }
-
-        // If there are no tags, search by name
-        if (!filterTags || filterTags.length === 0) {
-            return fileName.startsWith(query.toLowerCase());
-        }
-
-        // Apply tag filters
-        if (filterTags.includes(file.type)) {
-            if (query.match(/[<>].*$/)) {
-                const nameQuery = query.replace(/<.*?>/g, '').trim().toLowerCase();
-                if (fileName.startsWith(nameQuery)) {
-                    match = true;
-                }
-            } else {
-                match = true;
-            }
-        }
-
-        return match;
-    });
-
-    // Handle sorting by name, size, type, or date
-    if (sortOrder) {
-        const orderChar = sortOrder.charAt(0);
-        const orderType = sortOrder.substring(1).toLowerCase();
-
-        if (orderType === 'name') {
-            filteredFiles.sort((a, b) => orderChar === '>' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
-        } else if (orderType === 'size') {
-            filteredFiles.sort((a, b) => orderChar === '>' ? a.size - b.size : b.size - a.size);
-        } else if (orderType === 'type') {
-            filteredFiles.sort((a, b) => orderChar === '>' ? fileTypes.indexOf(a.type) - fileTypes.indexOf(b.type) : fileTypes.indexOf(b.type) - fileTypes.indexOf(a.type));
-        } else if (orderType === 'date') {
-            filteredFiles.sort((a, b) => orderChar === '>' ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date));
-        }
-    }
-
-    displayFiles(filteredFiles);
-}
-
-function displayFiles(filteredFiles) {
-    const fileGrid = document.getElementById('file-grid');
-    fileGrid.innerHTML = ''; // Clear existing files
-
-    filteredFiles.forEach((file, index) => {
-        // Add your logic to render the filtered files
-    });
-}
-
-
-// Initialize scroll indicator
 function initializeScrollIndicator() {
     scrollIndicator = document.getElementById('scroll-indicator');
     const container = document.querySelector('.file-system-container');
     
-    // Create squares for the scroll indicator
+    scrollIndicator.innerHTML = '';
     for (let i = 0; i < totalSquares; i++) {
         const square = document.createElement('div');
         square.classList.add('scroll-square');
         scrollIndicator.appendChild(square);
     }
 
-    // Add scroll event listener
     container.addEventListener('scroll', updateScrollIndicator);
-    
-    // Add resize event listener
     window.addEventListener('resize', updateScrollIndicator);
-    
-    // Initial update
     updateScrollIndicator();
 }
 
-// Update scroll indicator based on scroll position
 function updateScrollIndicator() {
     const container = document.querySelector('.file-system-container');
     const totalHeight = container.scrollHeight - container.clientHeight;
     const scrollTop = container.scrollTop;
 
-    // Recalculate totalSquares based on container height
     const containerHeight = container.clientHeight;
-    totalSquares = Math.max(Math.floor(containerHeight / 20), 5); // Minimum of 5 squares
+    totalSquares = Math.max(Math.floor(containerHeight / 20), 5);
 
-    // Adjust the number of squares in the indicator
     const currentSquares = scrollIndicator.children.length;
     if (currentSquares < totalSquares) {
         for (let i = currentSquares; i < totalSquares; i++) {
@@ -403,14 +307,12 @@ function updateScrollIndicator() {
         }
     }
 
-    // Update square height
     const squareHeight = 100 / totalSquares;
     const squares = scrollIndicator.getElementsByClassName('scroll-square');
     for (let square of squares) {
         square.style.height = `${squareHeight}%`;
     }
     
-    // Show scroll indicator only if scrolling is possible
     scrollIndicator.style.display = totalHeight > 0 ? 'block' : 'none';
 
     if (totalHeight > 0) {
@@ -420,13 +322,19 @@ function updateScrollIndicator() {
             totalSquares - 1
         );
 
-        // Update the background of each square
         for (let i = 0; i < squares.length; i++) {
-            if (i === selectedSquare) {
-                squares[i].style.backgroundImage = "url('/TempIconsSaveFile/SelectedScroll.png')";
-            } else {
-                squares[i].style.backgroundImage = "url('/TempIconsSaveFile/UnselectedScroll.png')";
-            }
+            squares[i].style.backgroundImage = i === selectedSquare
+                ? "url('/TempIconsSaveFile/SelectedScroll.png')"
+                : "url('/TempIconsSaveFile/UnselectedScroll.png')";
         }
     }
 }
+
+// Initialize the application
+fetch('icons.json')
+    .then(response => response.json())
+    .then(data => {
+        iconConfig = data;
+        loadFilesForCurrentPath();
+    })
+    .catch(error => console.error('Error loading icons:', error));

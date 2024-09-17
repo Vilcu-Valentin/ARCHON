@@ -45,6 +45,18 @@ header {
     margin-top: 10px;
 }
 
+#additional-container
+{
+    padding-left: 20px;
+}
+
+#file-path{
+    padding: 5px;
+    color:#87c67a;
+    border: 0.2vw solid #2bf4e3;
+    font-size: 1.5vw;
+}
+
 #back-button {
     margin-right: 10px;
     padding: 5px 10px;
@@ -85,7 +97,7 @@ header {
 
 .file-system-container {
     width: 95%;
-    height: calc(100vh - 300px); /* Adjusted height based on viewport */
+    height: calc(100vh - 200px); /* Adjusted height based on viewport */
     background-color: rgba(0, 0, 0, 0);
     padding: 20px;
     border-radius: 10px;
