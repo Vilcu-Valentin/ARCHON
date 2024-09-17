@@ -6,8 +6,9 @@
         "type": "text",
         "path": "files/doc1.txt",
         "corrupted": false,
-        "locked": 0,
-        "parent": "root"
+        "locked": 5,
+        "parent": "root",
+        "psword": "123"
     },
     {
         "name": "DOCUMENT 2",

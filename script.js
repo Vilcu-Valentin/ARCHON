@@ -61,7 +61,7 @@ function showFilePopup(file, fileElement) {
                 fileElement.classList.add('locked');
                 applyFileStyles(fileElement, 'locked');
                 sessionStorage.setItem(file.path, `locked-${file.locked}`);
-                addCloseButton(popup, overlay);
+                addPasswordField(popup, overlay, file);
             } else {
                 document.body.removeChild(popup);
                 document.body.removeChild(overlay);
@@ -76,6 +76,59 @@ function showFilePopup(file, fileElement) {
 
     updateProgress();
     const interval = setInterval(() => updateProgress(), getRandomInterval(minInterval, maxInterval));
+}
+
+function addPasswordField(popup, overlay, file) {
+    const passwordContainer = document.createElement('div');
+    passwordContainer.classList.add('password-container');
+
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('password-message');
+    passwordContainer.appendChild(messageElement);
+
+    const passwordInput = document.createElement('input');
+    passwordInput.type = 'password';
+    passwordInput.placeholder = 'Enter password';
+    passwordContainer.appendChild(passwordInput);
+
+    const submitButton = document.createElement('button');
+    submitButton.textContent = 'Submit';
+    submitButton.addEventListener('click', () => verifyPassword(passwordInput.value, file, messageElement));
+    passwordContainer.appendChild(submitButton);
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Close';
+    closeButton.addEventListener('click', () => {
+        document.body.removeChild(popup);
+        document.body.removeChild(overlay);
+    });
+    passwordContainer.appendChild(closeButton);
+
+    popup.appendChild(passwordContainer);
+}
+
+function verifyPassword(enteredPassword, file, messageElement) {
+    if (file.psword === "" || enteredPassword !== file.psword) {
+        messageElement.textContent = "Incorrect password. Access denied.";
+        messageElement.style.color = 'red';
+        setTimeout(() => {
+            messageElement.textContent = '';
+        }, 3000);
+    } else {
+        messageElement.textContent = "Access granted. Opening file...";
+        messageElement.style.color = 'green';
+        setTimeout(() => {
+            const popup = document.querySelector('.file-popup');
+            const overlay = document.querySelector('.modal-overlay');
+            document.body.removeChild(popup);
+            document.body.removeChild(overlay);
+            if (file.type === 'file') {
+                navigateToFolder(file.name);
+            } else {
+                openFileViewer(file);
+            }
+        }, 1500);
+    }
 }
 
 function openFileViewer(file) {
@@ -412,9 +465,9 @@ function loadFiles(files) {
             const lockLevel = sessionStatus.split('-')[1];
             fileItem.classList.add('locked');
             applyFileStyles(fileItem, 'locked');
-        } else {
-            fileItem.addEventListener('click', () => showFilePopup(file, fileItem));
         }
+
+        fileItem.addEventListener('click', () => showFilePopup(file, fileItem));
 
         fileItem.style.opacity = 0;
         fileGrid.appendChild(fileItem);

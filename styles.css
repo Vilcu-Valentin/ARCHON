@@ -243,9 +243,9 @@ header {
     position: fixed;
     top: 50%;
     left: 50%;
-    width: 25vw;
+    width: 28vw;
     height: auto;
-    max-height: 12vw;
+    max-height: 16vw;
     transform: translate(-50%, -50%);
     background-color: rgba(0, 0, 0, 0.4);
     border: 3px solid #077056;
@@ -285,6 +285,19 @@ header {
     color: #87c67a;
     font-size: 2.25vw;
     font-family: "VT323", monospace;
+    margin: 5px;
+}
+
+.password-message{
+    font-size: 1.25vw;
+}
+
+.file-popup input{
+    background-color: rgba(0, 0, 0, 0);
+    border:3px solid #2bf4e3;
+    color: #87c67a;
+    font-size: 2vw;
+    font-family: "VT323", monospace;   
 }
 
 .file-item.corrupted {
