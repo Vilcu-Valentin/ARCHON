@@ -25,6 +25,14 @@ header {
     align-items: center;
 }
 
+.header-banner{
+    display: flex;
+    align-items: left;
+    width: 100%;
+    color: #077056;
+    font-size: 1vw;
+}
+
 /* Top section: Logo and empty container next to the title */
 .header-top {
     display: flex;
@@ -254,7 +262,7 @@ header {
     left: 50%;
     width: 28vw;
     height: auto;
-    max-height: 16vw;
+    max-height: 18vw;
     transform: translate(-50%, -50%);
     background-color: rgba(0, 0, 0, 0.4);
     border: 3px solid #077056;
@@ -283,7 +291,7 @@ header {
 }
 
 .loading-text {
-    font-size: 2.25vw;
+    font-size: 2vw;
     margin-bottom: 10px;
     color:#2bf4e3
 }

@@ -50,18 +50,32 @@ function showFilePopup(file, fileElement) {
             clearInterval(interval);
 
             if (file.corrupted) {
-                loadingText.innerText = 'WARNING: File is corrupted';
+                loadingText.innerText = 'File Status: CORRUPT\nSystem Diagnostics: Reconstruct attempt [failed]';
                 loadingText.classList.add('corrupted-text');
                 fileElement.classList.add('corrupted');
                 applyFileStyles(fileElement, 'corrupted');
                 sessionStorage.setItem(file.path, 'corrupted');
+                
+                // Update icon immediately
+                const iconElement = fileElement.querySelector('.file-icon');
+                let iconPath = iconConfig[file.type] || '/default.png';
+                iconPath = iconPath.replace('.png', '-corrupted.png');
+                iconElement.src = `TempIconsSaveFile${iconPath}`;
+                
                 addCloseButton(popup, overlay);
             } else if (file.locked && file.locked > 0) {
-                loadingText.innerText = `Locked by Administrator\nLevel Access Required: ${file.locked}`;
+                loadingText.innerText = `File Status: LOCKED\nThis file is restricted by Directive 11-A\nClearance Level: ${file.locked}`;
                 loadingText.classList.add('locked-text');
                 fileElement.classList.add('locked');
                 applyFileStyles(fileElement, 'locked');
                 sessionStorage.setItem(file.path, `locked-${file.locked}`);
+                
+                // Update icon immediately
+                const iconElement = fileElement.querySelector('.file-icon');
+                let iconPath = iconConfig[file.type] || '/default.png';
+                iconPath = iconPath.replace('.png', '-locked.png');
+                iconElement.src = `TempIconsSaveFile${iconPath}`;
+                
                 addPasswordField(popup, overlay, file);
             } else {
                 document.body.removeChild(popup);
@@ -292,14 +306,10 @@ function applyFileStyles(fileElement, status) {
     const fileDateElement = fileElement.querySelector('.file-date');
     const fileSizeElement = fileElement.querySelector('.file-size');
 
-    if (status === 'corrupted') {
-        if (fileNameElement) fileNameElement.classList.add('corrupted');
-        if (fileDateElement) fileDateElement.classList.add('corrupted');
-        if (fileSizeElement) fileSizeElement.classList.add('corrupted');
-    } else if (status === 'locked') {
-        if (fileNameElement) fileNameElement.classList.add('locked');
-        if (fileDateElement) fileDateElement.classList.add('locked');
-        if (fileSizeElement) fileSizeElement.classList.add('locked');
+    if (status === 'corrupted' || status === 'locked') {
+        if (fileNameElement) fileNameElement.classList.add(status);
+        if (fileDateElement) fileDateElement.classList.add(status);
+        if (fileSizeElement) fileSizeElement.classList.add(status);
     }
 }
 
@@ -353,9 +363,6 @@ function filterFiles() {
     const fileGrid = document.getElementById('file-grid');
     fileGrid.innerHTML = '';
 
-    // Check if [showhidden] tag is present
-    showHidden = query.includes('[showhidden]');
-
     fetch('files.json')
         .then(response => response.json())
         .then(files => {
@@ -370,28 +377,36 @@ function processQuery(query, files) {
     let sortOrder = null;
     let sortField = null;
 
+    // Extract tags
     const tagPattern = /<([^>]+)>/g;
-    const sortPattern = /%([<>])([^%]+)%/g;
-
     let match;
     while ((match = tagPattern.exec(query)) !== null) {
         filters.push(match[1].toLowerCase());
     }
 
+    // Extract sort order
+    const sortPattern = /%([<>])([^%]+)%/g;
     while ((match = sortPattern.exec(query)) !== null) {
         sortOrder = match[1] === '>' ? 'asc' : 'desc';
         sortField = match[2].toLowerCase();
     }
 
-    // Remove [showhidden] tag from the query
-    query = query.replace(/\[showhidden\]/g, '').trim().toLowerCase();
+    // Check for [showhidden] tag
+    showHidden = query.includes('[showhidden]');
+
+    // Remove all special tags from the query
+    query = query.replace(tagPattern, '')
+                 .replace(sortPattern, '')
+                 .replace(/\[showhidden\]/g, '')
+                 .trim()
+                 .toLowerCase();
 
     let filteredFiles = files.filter(file => {
         const fileType = file.type.toLowerCase();
         const fileName = file.name.toLowerCase();
 
         let matchesType = filters.length === 0 || filters.some(filter => fileType.includes(filter));
-        let matchesName = !query || fileName.startsWith(query);
+        let matchesName = !query || fileName.includes(query);
         let isVisible = !file.hidden || showHidden;
 
         return matchesType && matchesName && isVisible;
@@ -403,7 +418,6 @@ function processQuery(query, files) {
 
     return filteredFiles;
 }
-
 
 function convertSizeToBytes(sizeString) {
     const sizePattern = /([\d.]+)\s*(B|KB|MB|GB)/i;
@@ -442,7 +456,12 @@ function sortFiles(files, field, order) {
             valueB = typeOrder.indexOf(b.type.toLowerCase());
         }
 
-        return order === 'asc' ? (valueA > valueB ? 1 : -1) : (valueA < valueB ? 1 : -1);
+        if (valueA === valueB) return 0;
+        if (order === 'asc') {
+            return valueA < valueB ? -1 : 1;
+        } else {
+            return valueA > valueB ? -1 : 1;
+        }
     });
 }
 
@@ -454,9 +473,22 @@ function loadFiles(files) {
         if (!file.hidden || showHidden) {
             const fileItem = document.createElement('div');
             fileItem.classList.add('file-item');
+            fileItem.setAttribute('data-path', file.path); // Add this line
 
-            const iconPath = iconConfig[file.type] || '/default.png';
-            
+            let iconPath = iconConfig[file.type] || '/default.png';
+            let fileStatus = '';
+
+            const sessionStatus = sessionStorage.getItem(file.path);
+            if (sessionStatus === 'corrupted') {
+                fileStatus = 'corrupted';
+                iconPath = iconPath.replace('.png', '-corrupted.png');
+                fileItem.classList.add('corrupted');
+            } else if (sessionStatus && sessionStatus.startsWith('locked')) {
+                fileStatus = 'locked';
+                iconPath = iconPath.replace('.png', '-locked.png');
+                fileItem.classList.add('locked');
+            }
+
             let fileItemHTML = `
                 <img class="file-icon" src="TempIconsSaveFile${iconPath}" alt="File Icon">
                 <div class="file-info">
@@ -474,14 +506,8 @@ function loadFiles(files) {
 
             fileItem.innerHTML = fileItemHTML;
 
-            const sessionStatus = sessionStorage.getItem(file.path);
-            if (sessionStatus === 'corrupted') {
-                fileItem.classList.add('corrupted');
-                applyFileStyles(fileItem, 'corrupted');
-            } else if (sessionStatus && sessionStatus.startsWith('locked')) {
-                const lockLevel = sessionStatus.split('-')[1];
-                fileItem.classList.add('locked');
-                applyFileStyles(fileItem, 'locked');
+            if (fileStatus) {
+                applyFileStyles(fileItem, fileStatus);
             }
 
             fileItem.addEventListener('click', () => showFilePopup(file, fileItem));
