@@ -221,6 +221,15 @@ header {
     color: #87c67a;
 }
 
+.hidden-label {
+    position: absolute;
+    top: 1vw;
+    right: 1vw;
+    background-color: rgba(0, 0, 0, 0);
+    color: #87c67a;
+    font-size: 1.75vw;
+}
+
 .file-size {
     position: absolute;
     bottom: 1vw;

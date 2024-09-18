@@ -2,6 +2,7 @@ let iconConfig = {};
 let scrollIndicator;
 let totalSquares = 20;
 let currentPath = 'root';
+let showHidden = false;
 
 function getRandomInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -352,6 +353,9 @@ function filterFiles() {
     const fileGrid = document.getElementById('file-grid');
     fileGrid.innerHTML = '';
 
+    // Check if [showhidden] tag is present
+    showHidden = query.includes('[showhidden]');
+
     fetch('files.json')
         .then(response => response.json())
         .then(files => {
@@ -379,7 +383,8 @@ function processQuery(query, files) {
         sortField = match[2].toLowerCase();
     }
 
-    query = query.replace(tagPattern, '').replace(sortPattern, '').trim().toLowerCase();
+    // Remove [showhidden] tag from the query
+    query = query.replace(/\[showhidden\]/g, '').trim().toLowerCase();
 
     let filteredFiles = files.filter(file => {
         const fileType = file.type.toLowerCase();
@@ -387,8 +392,9 @@ function processQuery(query, files) {
 
         let matchesType = filters.length === 0 || filters.some(filter => fileType.includes(filter));
         let matchesName = !query || fileName.startsWith(query);
+        let isVisible = !file.hidden || showHidden;
 
-        return matchesType && matchesName;
+        return matchesType && matchesName && isVisible;
     });
 
     if (sortField) {
@@ -397,6 +403,7 @@ function processQuery(query, files) {
 
     return filteredFiles;
 }
+
 
 function convertSizeToBytes(sizeString) {
     const sizePattern = /([\d.]+)\s*(B|KB|MB|GB)/i;
@@ -444,37 +451,48 @@ function loadFiles(files) {
     fileGrid.innerHTML = '';
 
     files.forEach((file, index) => {
-        const fileItem = document.createElement('div');
-        fileItem.classList.add('file-item');
+        if (!file.hidden || showHidden) {
+            const fileItem = document.createElement('div');
+            fileItem.classList.add('file-item');
 
-        const iconPath = iconConfig[file.type] || '/default.png';
-        fileItem.innerHTML = `
-            <img class="file-icon" src="TempIconsSaveFile${iconPath}" alt="File Icon">
-            <div class="file-info">
-                <div class="file-name">${file.name}</div>
-                <div class="file-date">${file.date}</div>
-            </div>
-            <div class="file-size">${file.size}</div>
-        `;
+            const iconPath = iconConfig[file.type] || '/default.png';
+            
+            let fileItemHTML = `
+                <img class="file-icon" src="TempIconsSaveFile${iconPath}" alt="File Icon">
+                <div class="file-info">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-date">${file.date}</div>
+                </div>
+                <div class="file-size">${file.size}</div>
+            `;
 
-        const sessionStatus = sessionStorage.getItem(file.path);
-        if (sessionStatus === 'corrupted') {
-            fileItem.classList.add('corrupted');
-            applyFileStyles(fileItem, 'corrupted');
-        } else if (sessionStatus && sessionStatus.startsWith('locked')) {
-            const lockLevel = sessionStatus.split('-')[1];
-            fileItem.classList.add('locked');
-            applyFileStyles(fileItem, 'locked');
+            if (file.hidden) {
+                fileItem.classList.add('hidden-file');
+                fileItem.style.opacity = '0.9';
+                fileItemHTML += '<div class="hidden-label">Hidden</div>';
+            }
+
+            fileItem.innerHTML = fileItemHTML;
+
+            const sessionStatus = sessionStorage.getItem(file.path);
+            if (sessionStatus === 'corrupted') {
+                fileItem.classList.add('corrupted');
+                applyFileStyles(fileItem, 'corrupted');
+            } else if (sessionStatus && sessionStatus.startsWith('locked')) {
+                const lockLevel = sessionStatus.split('-')[1];
+                fileItem.classList.add('locked');
+                applyFileStyles(fileItem, 'locked');
+            }
+
+            fileItem.addEventListener('click', () => showFilePopup(file, fileItem));
+
+            fileItem.style.opacity = file.hidden ? '0.5' : '0';
+            fileGrid.appendChild(fileItem);
+            setTimeout(() => {
+                fileItem.style.transition = 'opacity 0.25s ease-out';
+                fileItem.style.opacity = file.hidden ? '0.5' : '1';
+            }, index * 250);
         }
-
-        fileItem.addEventListener('click', () => showFilePopup(file, fileItem));
-
-        fileItem.style.opacity = 0;
-        fileGrid.appendChild(fileItem);
-        setTimeout(() => {
-            fileItem.style.transition = 'opacity 0.25s ease-out';
-            fileItem.style.opacity = 1;
-        }, index * 250);
     });
 }
 

@@ -1,14 +1,15 @@
 [
     {
         "name": "DOCUMENT 1",
-        "size": "",
+        "size": "35 KB",
         "date": "2024-07-18",
         "type": "text",
         "path": "files/doc1.txt",
         "corrupted": false,
         "locked": 5,
         "parent": "root",
-        "psword": "123"
+        "psword": "123",
+        "hidden": true
     },
     {
         "name": "DOCUMENT 2",
@@ -58,7 +59,8 @@
         "path": "files/doc3.mp3",
         "corrupted": false,
         "locked": 0,
-        "parent": "SYSTEM LOGS"
+        "parent": "SYSTEM LOGS",
+        "hidden": true
     },
     {
         "name": "ARCHIVE",
