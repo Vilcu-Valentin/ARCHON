@@ -4,6 +4,20 @@ let totalSquares = 20;
 let currentPath = 'root';
 let showHidden = false;
 
+function initializeApplication() {
+    // Move all your existing initialization code here
+    document.getElementById('search-bar').addEventListener('input', filterFiles);
+    document.getElementById('back-button').addEventListener('click', navigateBack);
+
+    fetch('icons.json')
+        .then(response => response.json())
+        .then(data => {
+            iconConfig = data;
+            loadFilesForCurrentPath();
+        })
+        .catch(error => console.error('Error loading icons:', error));
+}
+
 function getRandomInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -357,6 +371,33 @@ function navigateBack() {
         loadFilesForCurrentPath();
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordOverlay = document.getElementById('password-overlay');
+    const passwordInput = document.getElementById('password-input');
+    const submitButton = document.getElementById('submit-password');
+    const errorMessage = document.getElementById('password-error');
+    const mainContent = document.getElementById('main-content');
+    const correctPassword = 'REMNANT';
+
+    function checkPassword() {
+        if (passwordInput.value === correctPassword) {
+            passwordOverlay.style.display = 'none';
+            mainContent.style.display = 'block';
+            initializeApplication();
+        } else {
+            errorMessage.textContent = 'Incorrect password. Access denied.';
+            passwordInput.value = '';
+        }
+    }
+
+    submitButton.addEventListener('click', checkPassword);
+    passwordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            checkPassword();
+        }
+    });
+});
 
 function filterFiles() {
     const query = document.getElementById('search-bar').value.trim();

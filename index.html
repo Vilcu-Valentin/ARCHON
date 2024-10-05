@@ -11,31 +11,43 @@
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 </head>
 <body class="scan-line-overlay">
-    <header>
-        <div class="header-banner">
-            <div>Connection: Secured | Encryption Protocol: A.R.C-99</div>
+    <div id="password-overlay" class="password-overlay">
+        <div class="password-container">
+            <h2>A.R.F Remote Terminal</h2>
+            <p>Enter access code:</p>
+            <input type="password" id="password-input" placeholder="Password">
+            <button id="submit-password">Submit</button>
+            <p id="password-error" class="error-message"></p>
         </div>
-        <div class="header-top">
-            <h2>ARCHON ARCHIVE v1.97</h2>
-            <div id="additional-container">
-                <div id="file-path"><b>File path:</b> root/</div>
-            </div> <!-- Empty container for future content -->
-        </div>
-        <div class="header-middle">
-            <button id="back-button">BACK</button>
-            <div id="search-bar-container">
-                <input type="text" id="search-bar" placeholder="Search:">
+    </div>    
+
+    <div id="main-content" style="display: none;">
+        <header>
+            <div class="header-banner">
+                <div>Connection: Secured | Encryption Protocol: A.R.C-99</div>
             </div>
-        </div>
-    </header>   
-    
-    <div class="main-container">
-        <div class="file-system-container">
-            <div id="file-grid" class="file-grid">
-                <!-- Files will be loaded here dynamically -->
+            <div class="header-top">
+                <h2>ARCHON ARCHIVE v1.97</h2>
+                <div id="additional-container">
+                    <div id="file-path"><b>File path:</b> root/</div>
+                </div> <!-- Empty container for future content -->
             </div>
+            <div class="header-middle">
+                <button id="back-button">BACK</button>
+                <div id="search-bar-container">
+                    <input type="text" id="search-bar" placeholder="Search:">
+                </div>
+            </div>
+        </header>   
+        
+        <div class="main-container">
+            <div class="file-system-container">
+                <div id="file-grid" class="file-grid">
+                    <!-- Files will be loaded here dynamically -->
+                </div>
+            </div>
+            <div id="scroll-indicator"></div> <!-- Custom scroll indicator -->
         </div>
-        <div id="scroll-indicator"></div> <!-- Custom scroll indicator -->
     </div>
     <script src="script.js"></script>
 </body>
