@@ -1,11 +1,8 @@
 let iconConfig = {};
-let scrollIndicator;
-let totalSquares = 20;
 let currentPath = 'root';
 let showHidden = false;
 
 function initializeApplication() {
-    // Move all your existing initialization code here
     document.getElementById('search-bar').addEventListener('input', filterFiles);
     document.getElementById('back-button').addEventListener('click', navigateBack);
 
@@ -22,89 +19,73 @@ function getRandomInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function showFilePopup(file, fileElement) {
-    const overlay = document.createElement('div');
-    overlay.classList.add('modal-overlay');
-    document.body.appendChild(overlay);
+// Helper to create unique identifier for each file
+function createFileIdentifier(file) {
+    return `root/${file.parent}/${file.name}`;
+}
 
-    const popup = document.createElement('div');
-    popup.classList.add('file-popup');
+function loadFiles(files) {
+    const fileGrid = document.getElementById('file-grid');
+    fileGrid.innerHTML = '';
 
-    const loadingBarContainer = document.createElement('div');
-    loadingBarContainer.classList.add('loading-bar-container');
-    const loadingBar = document.createElement('div');
-    loadingBar.classList.add('loading-bar');
-    loadingBarContainer.appendChild(loadingBar);
+    files.forEach((file, index) => {
+        if (!file.hidden || showHidden) {
+            const fileItem = document.createElement('div');
+            fileItem.classList.add('file-item');
 
-    const loadingText = document.createElement('div');
-    loadingText.classList.add('loading-text');
-    loadingText.innerText = 'Discovering file...';
+            // Create a unique identifier for this file
+            const fileIdentifier = createFileIdentifier(file);
+            fileItem.setAttribute('data-path', fileIdentifier);
 
-    popup.appendChild(loadingText);
-    popup.appendChild(loadingBarContainer);
-    document.body.appendChild(popup);
+            let iconPath = iconConfig[file.type] || '/default.png';
+            let fileStatus = '';
 
-    let progress = 0;
-    const minInterval = 100;
-    const maxInterval = 300;
+            // Retrieve the status from localStorage based on the unique identifier
+            const storedStatus = localStorage.getItem(fileIdentifier);
 
-    function updateProgress() {
-        progress += 10;
-        loadingBar.style.width = progress + '%';
-
-        if (progress === 20) {
-            loadingText.innerText = 'Analyzing data...';
-        } else if (progress === 40) {
-            loadingText.innerText = 'Processing file...';
-        } else if (progress === 90) {
-            loadingText.innerText = 'Finalizing...';
-        }
-
-        if (progress >= 100) {
-            clearInterval(interval);
-
-            if (file.corrupted) {
-                loadingText.innerText = 'File Status: CORRUPT\nSystem Diagnostics: Reconstruct attempt [failed]';
-                loadingText.classList.add('corrupted-text');
-                fileElement.classList.add('corrupted');
-                applyFileStyles(fileElement, 'corrupted');
-                sessionStorage.setItem(file.path, 'corrupted');
-                
-                // Update icon immediately
-                const iconElement = fileElement.querySelector('.file-icon');
-                let iconPath = iconConfig[file.type] || '/default.png';
+            if (storedStatus === 'corrupted') {
+                fileStatus = 'corrupted';
                 iconPath = iconPath.replace('.png', '-corrupted.png');
-                iconElement.src = `TempIconsSaveFile${iconPath}`;
-                
-                addCloseButton(popup, overlay);
-            } else if (file.locked && file.locked > 0) {
-                loadingText.innerText = `File Status: LOCKED\nThis file is restricted by Directive 11-A\nClearance Level: ${file.locked}`;
-                loadingText.classList.add('locked-text');
-                fileElement.classList.add('locked');
-                applyFileStyles(fileElement, 'locked');
-                sessionStorage.setItem(file.path, `locked-${file.locked}`);
-                
-                // Update icon immediately
-                const iconElement = fileElement.querySelector('.file-icon');
-                let iconPath = iconConfig[file.type] || '/default.png';
+                fileItem.classList.add('corrupted');
+            } else if (storedStatus && storedStatus.startsWith('locked')) {
+                fileStatus = 'locked';
                 iconPath = iconPath.replace('.png', '-locked.png');
-                iconElement.src = `TempIconsSaveFile${iconPath}`;
-                
-                addPasswordField(popup, overlay, file);
-            } else {
-                document.body.removeChild(popup);
-                document.body.removeChild(overlay);
-                if (file.type === 'file') {
-                    navigateToFolder(file.name);
-                } else {
-                    openFileViewer(file);
-                }
+                fileItem.classList.add('locked');
             }
-        }
-    }
 
-    updateProgress();
-    const interval = setInterval(() => updateProgress(), getRandomInterval(minInterval, maxInterval));
+            let fileItemHTML = `
+                <img class="file-icon" src="TempIconsSaveFile${iconPath}" alt="File Icon">
+                <div class="file-info">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-date">${file.date}</div>
+                </div>
+                <div class="file-size">${file.size}</div>
+            `;
+
+            if (file.hidden) {
+                fileItem.classList.add('hidden-file');
+                fileItem.style.opacity = '0.9';
+                fileItemHTML += '<div class="hidden-label">Hidden</div>';
+            }
+
+            fileItem.innerHTML = fileItemHTML;
+
+            // Apply file styles if previously checked
+            if (fileStatus) {
+                applyFileStyles(fileItem, fileStatus);
+            }
+
+            // Add click listener to check the file and update style
+            fileItem.addEventListener('click', () => showFilePopup(file, fileItem));
+
+            fileItem.style.opacity = file.hidden ? '0.5' : '0';
+            fileGrid.appendChild(fileItem);
+            setTimeout(() => {
+                fileItem.style.transition = 'opacity 0.25s ease-out';
+                fileItem.style.opacity = file.hidden ? '0.5' : '1';
+            }, index * 250);
+        }
+    });
 }
 
 function addPasswordField(popup, overlay, file) {
@@ -135,6 +116,173 @@ function addPasswordField(popup, overlay, file) {
 
     popup.appendChild(passwordContainer);
 }
+
+function showFilePopup(file, fileElement) {
+    const overlay = document.createElement('div');
+    overlay.classList.add('modal-overlay');
+    document.body.appendChild(overlay);
+
+    const popup = document.createElement('div');
+    popup.classList.add('file-popup');
+
+    const loadingBarContainer = document.createElement('div');
+    loadingBarContainer.classList.add('loading-bar-container');
+    const loadingBar = document.createElement('div');
+    loadingBar.classList.add('loading-bar');
+    loadingBarContainer.appendChild(loadingBar);
+
+    const loadingText = document.createElement('div');
+    loadingText.classList.add('loading-text');
+    loadingText.innerText = 'Discovering file...';
+
+    popup.appendChild(loadingText);
+    popup.appendChild(loadingBarContainer);
+    document.body.appendChild(popup);
+
+    let progress = 0;
+
+    function updateProgress() {
+        progress += 10;
+        loadingBar.style.width = `${progress}%`;
+
+        if (progress === 20) {
+            loadingText.innerText = 'Analyzing data...';
+        } else if (progress === 40) {
+            loadingText.innerText = 'Processing file...';
+        } else if (progress === 90) {
+            loadingText.innerText = 'Finalizing...';
+        }
+
+        if (progress >= 100) {
+            clearInterval(interval);
+
+            const fileIdentifier = createFileIdentifier(file);
+
+            if (file.corrupted) {
+                loadingText.innerText = 'File Status: CORRUPT\nSystem Diagnostics: Reconstruct attempt [failed]';
+                loadingText.classList.add('corrupted-text');
+                fileElement.classList.add('corrupted');
+                applyFileStyles(fileElement, 'corrupted');
+                localStorage.setItem(fileIdentifier, 'corrupted'); // Save status in localStorage
+                
+                updateFileIcon(fileElement, file, 'corrupted');
+                addCloseButton(popup, overlay);
+
+            } else if (file.locked && file.locked > 0) {
+                loadingText.innerText = `File Status: LOCKED\nClearance Level: ${file.locked}`;
+                loadingText.classList.add('locked-text');
+                fileElement.classList.add('locked');
+                applyFileStyles(fileElement, 'locked');
+                localStorage.setItem(fileIdentifier, `locked-${file.locked}`); // Save status in localStorage
+                
+                updateFileIcon(fileElement, file, 'locked');
+                addPasswordField(popup, overlay, file);
+            } else {
+                document.body.removeChild(popup);
+                document.body.removeChild(overlay);
+                if (file.type === 'file') {
+                    navigateToFolder(file.name);
+                } else {
+                    openFileViewer(file);
+                }
+            }
+        }
+    }
+
+    updateProgress();
+    const interval = setInterval(updateProgress, getRandomInterval(100, 300));
+}
+
+function updateFileIcon(fileElement, file, status) {
+    const iconElement = fileElement.querySelector('.file-icon');
+    let iconPath = iconConfig[file.type] || '/default.png';
+    iconPath = iconPath.replace('.png', `-${status}.png`);
+    iconElement.src = `TempIconsSaveFile${iconPath}`;
+}
+
+function applyFileStyles(fileElement, status) {
+    const fileNameElement = fileElement.querySelector('.file-name');
+    const fileDateElement = fileElement.querySelector('.file-date');
+    const fileSizeElement = fileElement.querySelector('.file-size');
+
+    if (status === 'corrupted' || status === 'locked') {
+        if (fileNameElement) fileNameElement.classList.add(status);
+        if (fileDateElement) fileDateElement.classList.add(status);
+        if (fileSizeElement) fileSizeElement.classList.add(status);
+    }
+}
+
+function addCloseButton(popup, overlay) {
+    const closeButton = document.createElement('button');
+    closeButton.innerText = 'Close';
+    closeButton.addEventListener('click', () => {
+        document.body.removeChild(popup);
+        document.body.removeChild(overlay);
+    });
+    popup.appendChild(closeButton);
+}
+
+function navigateToFolder(folderName) {
+    currentPath = currentPath === 'root' ? folderName : `${currentPath}/${folderName}`;
+    updateFilePath();
+    loadFilesForCurrentPath();
+}
+
+function updateFilePath() {
+    const filePathElement = document.getElementById('file-path');
+    filePathElement.innerHTML = `<b>File path:</b> ${currentPath}/`;
+}
+
+function loadFilesForCurrentPath() {
+    fetch('files.json')
+        .then(response => response.json())
+        .then(data => {
+            const filteredFiles = data.filter(file => file.parent === currentPath);
+            loadFiles(filteredFiles);
+        })
+        .catch(error => console.error('Error loading files:', error));
+}
+
+function navigateBack() {
+    if (currentPath !== 'root') {
+        const pathParts = currentPath.split('/');
+        pathParts.pop();
+        currentPath = pathParts.join('/') || 'root';
+        updateFilePath();
+        loadFilesForCurrentPath();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    initializeApplication();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordOverlay = document.getElementById('password-overlay');
+    const passwordInput = document.getElementById('password-input');
+    const submitButton = document.getElementById('submit-password');
+    const errorMessage = document.getElementById('password-error');
+    const mainContent = document.getElementById('main-content');
+    const correctPassword = 'REMNANT';
+
+    function checkPassword() {
+        if (passwordInput.value === correctPassword) {
+            passwordOverlay.style.display = 'none';
+            mainContent.style.display = 'block';
+            initializeApplication();
+        } else {
+            errorMessage.textContent = 'Incorrect password. Access denied.';
+            passwordInput.value = '';
+        }
+    }
+
+    submitButton.addEventListener('click', checkPassword);
+    passwordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            checkPassword();
+        }
+    });
+});
 
 function verifyPassword(enteredPassword, file, messageElement) {
     if (file.psword === "" || enteredPassword !== file.psword) {
@@ -315,90 +463,6 @@ function formatTime(time) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
-function applyFileStyles(fileElement, status) {
-    const fileNameElement = fileElement.querySelector('.file-name');
-    const fileDateElement = fileElement.querySelector('.file-date');
-    const fileSizeElement = fileElement.querySelector('.file-size');
-
-    if (status === 'corrupted' || status === 'locked') {
-        if (fileNameElement) fileNameElement.classList.add(status);
-        if (fileDateElement) fileDateElement.classList.add(status);
-        if (fileSizeElement) fileSizeElement.classList.add(status);
-    }
-}
-
-function addCloseButton(popup, overlay) {
-    const closeButton = document.createElement('button');
-    closeButton.innerText = 'Close';
-    closeButton.addEventListener('click', () => {
-        document.body.removeChild(popup);
-        document.body.removeChild(overlay);
-    });
-    popup.appendChild(closeButton);
-}
-
-function navigateToFolder(folderName) {
-    currentPath = currentPath === 'root' ? folderName : `${currentPath}/${folderName}`;
-    updateFilePath();
-    loadFilesForCurrentPath();
-}
-
-function updateFilePath() {
-    const filePathElement = document.getElementById('file-path');
-    filePathElement.innerHTML = `<b>File path:</b> ${currentPath}/`;
-}
-
-function loadFilesForCurrentPath() {
-    fetch('files.json')
-        .then(response => response.json())
-        .then(data => {
-            const filteredFiles = data.filter(file => file.parent === currentPath);
-            loadFiles(filteredFiles);
-            initializeScrollIndicator();
-        })
-        .catch(error => console.error('Error loading files:', error));
-}
-
-document.getElementById('search-bar').addEventListener('input', filterFiles);
-document.getElementById('back-button').addEventListener('click', navigateBack);
-
-function navigateBack() {
-    if (currentPath !== 'root') {
-        const pathParts = currentPath.split('/');
-        pathParts.pop();
-        currentPath = pathParts.join('/') || 'root';
-        updateFilePath();
-        loadFilesForCurrentPath();
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const passwordOverlay = document.getElementById('password-overlay');
-    const passwordInput = document.getElementById('password-input');
-    const submitButton = document.getElementById('submit-password');
-    const errorMessage = document.getElementById('password-error');
-    const mainContent = document.getElementById('main-content');
-    const correctPassword = 'REMNANT';
-
-    function checkPassword() {
-        if (passwordInput.value === correctPassword) {
-            passwordOverlay.style.display = 'none';
-            mainContent.style.display = 'block';
-            initializeApplication();
-        } else {
-            errorMessage.textContent = 'Incorrect password. Access denied.';
-            passwordInput.value = '';
-        }
-    }
-
-    submitButton.addEventListener('click', checkPassword);
-    passwordInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            checkPassword();
-        }
-    });
-});
-
 function filterFiles() {
     const query = document.getElementById('search-bar').value.trim();
     const fileGrid = document.getElementById('file-grid');
@@ -506,63 +570,6 @@ function sortFiles(files, field, order) {
     });
 }
 
-function loadFiles(files) {
-    const fileGrid = document.getElementById('file-grid');
-    fileGrid.innerHTML = '';
-
-    files.forEach((file, index) => {
-        if (!file.hidden || showHidden) {
-            const fileItem = document.createElement('div');
-            fileItem.classList.add('file-item');
-            fileItem.setAttribute('data-path', file.path); // Add this line
-
-            let iconPath = iconConfig[file.type] || '/default.png';
-            let fileStatus = '';
-
-            const sessionStatus = sessionStorage.getItem(file.path);
-            if (sessionStatus === 'corrupted') {
-                fileStatus = 'corrupted';
-                iconPath = iconPath.replace('.png', '-corrupted.png');
-                fileItem.classList.add('corrupted');
-            } else if (sessionStatus && sessionStatus.startsWith('locked')) {
-                fileStatus = 'locked';
-                iconPath = iconPath.replace('.png', '-locked.png');
-                fileItem.classList.add('locked');
-            }
-
-            let fileItemHTML = `
-                <img class="file-icon" src="TempIconsSaveFile${iconPath}" alt="File Icon">
-                <div class="file-info">
-                    <div class="file-name">${file.name}</div>
-                    <div class="file-date">${file.date}</div>
-                </div>
-                <div class="file-size">${file.size}</div>
-            `;
-
-            if (file.hidden) {
-                fileItem.classList.add('hidden-file');
-                fileItem.style.opacity = '0.9';
-                fileItemHTML += '<div class="hidden-label">Hidden</div>';
-            }
-
-            fileItem.innerHTML = fileItemHTML;
-
-            if (fileStatus) {
-                applyFileStyles(fileItem, fileStatus);
-            }
-
-            fileItem.addEventListener('click', () => showFilePopup(file, fileItem));
-
-            fileItem.style.opacity = file.hidden ? '0.5' : '0';
-            fileGrid.appendChild(fileItem);
-            setTimeout(() => {
-                fileItem.style.transition = 'opacity 0.25s ease-out';
-                fileItem.style.opacity = file.hidden ? '0.5' : '1';
-            }, index * 250);
-        }
-    });
-}
-
 function initializeScrollIndicator() {
     scrollIndicator = document.getElementById('scroll-indicator');
     const container = document.querySelector('.file-system-container');
@@ -622,12 +629,3 @@ function updateScrollIndicator() {
         }
     }
 }
-
-// Initialize the application
-fetch('icons.json')
-    .then(response => response.json())
-    .then(data => {
-        iconConfig = data;
-        loadFilesForCurrentPath();
-    })
-    .catch(error => console.error('Error loading icons:', error));

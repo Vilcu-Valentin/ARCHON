@@ -256,7 +256,7 @@ header {
     z-index: 999; /* Ensure it's on top of other elements */
 }
 
-.file-popup {
+.password-container-2 {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -270,8 +270,7 @@ header {
     z-index: 1000; /* Higher than the overlay */
 }
 
-
-.password-container {
+.file-popup {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -320,7 +319,7 @@ header {
     margin: 5px;
 }
 
-.password-container button{
+.password-container-2 button{
     background-color: rgba(0, 0, 0, 0);
     border:3px solid #87c67a;
     color: #87c67a;
@@ -341,7 +340,7 @@ header {
     font-family: "VT323", monospace;   
 }
 
-.password-container input{
+.password-container-2 input{
     background-color: rgba(0, 0, 0, 0);
     border:3px solid #2bf4e3;
     color: #87c67a;
@@ -349,7 +348,7 @@ header {
     font-family: "VT323", monospace;   
 }
 
-.password-container p, h2{
+.password-container-2 p, h2{
     color: #2bf4e3;
 }
 
