@@ -255,23 +255,71 @@ function navigateBack() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+function createHeader() {
+    const header = document.createElement('header');
+    header.innerHTML = `
+        <div class="header-banner">
+            <div>Connection: Secured | Encryption Protocol: A.R.C-99</div>
+        </div>
+        <div class="header-top">
+            <h2>ARCHON ARCHIVE v1.97</h2>
+            <div id="additional-container">
+                <div id="file-path"><b>File path:</b> root/</div>
+            </div>
+        </div>
+        <div class="header-middle">
+            <button id="back-button">BACK</button>
+            <div id="search-bar-container">
+                <input type="text" id="search-bar" placeholder="Search:">
+            </div>
+        </div>
+    `;
+    return header;
+}
+
+function createMainContainer() {
+    const mainContainer = document.createElement('div');
+    mainContainer.className = 'main-container';
+    mainContainer.innerHTML = `
+        <div class="file-system-container">
+            <div id="file-grid" class="file-grid">
+                <!-- Files will be loaded here dynamically -->
+            </div>
+        </div>
+        <div id="scroll-indicator"></div>
+    `;
+    return mainContainer;
+}
+
+function loadMainContent() {
+    // Create main content structure
+    const mainContent = document.createElement('div');
+    mainContent.id = 'main-content';
+
+    const header = createHeader();
+    const mainContainer = createMainContainer();
+
+    mainContent.appendChild(header);
+    mainContent.appendChild(mainContainer);
+
+    // Append main content to body
+    document.body.appendChild(mainContent);
+
+    // Initialize application
     initializeApplication();
-});
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const passwordOverlay = document.getElementById('password-overlay');
     const passwordInput = document.getElementById('password-input');
     const submitButton = document.getElementById('submit-password');
     const errorMessage = document.getElementById('password-error');
-    const mainContent = document.getElementById('main-content');
     const correctPassword = 'REMNANT';
 
     function checkPassword() {
         if (passwordInput.value === correctPassword) {
             passwordOverlay.style.display = 'none';
-            mainContent.style.display = 'block';
-            initializeApplication();
+            loadMainContent();
         } else {
             errorMessage.textContent = 'Incorrect password. Access denied.';
             passwordInput.value = '';
