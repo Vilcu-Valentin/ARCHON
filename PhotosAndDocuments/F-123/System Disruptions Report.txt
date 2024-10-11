@@ -1,0 +1,7 @@
+ANNEX 
+
+**[DATE REDACTED]**
+
+ARCHON systems detected abnormal spikes in temporal signatures within the vicinity of a documented Chrono-Slip site. Data analysis shows that electronic devices failed to log time-based data accurately during the slip, leading to corrupted logs and inconsistent time stamps. Devices attempting to track or record during the event produced erratic results, with some entries appearing out of order or duplicated.
+
+Attempts to digitally monitor Chrono-Slip events have proven unreliable, as the force appears to distort not just human perception but also digital timekeeping systems. Continuous monitoring efforts are underway to better understand the force’s effect on non-living systems.

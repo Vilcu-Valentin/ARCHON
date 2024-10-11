@@ -1,0 +1,5 @@
+ANNEX 
+
+**[DATE REDACTED]**
+
+Following an experiment in which O-060 was used for 12 consecutive entries, several **ARCHON Archive systems** experienced errors when processing data related to the experiment. Log files of past entries were corrupted, with specific gaps in the recorded timestamps and details. Additionally, security footage of the room where the key had been used showed unexplained **visual distortions** after the 9th and 10th uses, with intermittent blackouts in the feed. These disturbances ceased after the key was locked in containment, and no further issues have been reported since.

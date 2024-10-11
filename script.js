@@ -1,11 +1,13 @@
 let iconConfig = {};
 let currentPath = 'root';
 let showHidden = false;
+let totalSquares = 20;
 
 function initializeApplication() {
     document.getElementById('search-bar').addEventListener('input', filterFiles);
     document.getElementById('back-button').addEventListener('click', navigateBack);
 
+    initializeScrollIndicator();
     fetch('icons.json')
         .then(response => response.json())
         .then(data => {

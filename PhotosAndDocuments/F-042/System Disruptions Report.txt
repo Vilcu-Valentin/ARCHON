@@ -1,0 +1,9 @@
+ANNEX 
+
+**[DATE REDACTED]**
+
+A cluster of F-042 activity was reported during the height of a geomagnetic storm near [REDACTED]. The ARCHON systems registered localized electromagnetic disturbances, resulting in data corruption and partial system failures across multiple sectors. The anomalies were recorded to have caused a complete communications blackout for several hours in affected regions. Although the system failures were eventually resolved, several components remained permanently damaged, with no clear explanation for the extent of the damage.
+
+**[DATE REDACTED]**
+
+ARCHON terminals monitoring communications across unstable zones reported signal anomalies corresponding with the appearance of F-042. Multiple reports indicated that the anomalies interfered with critical data transmissions, causing a significant loss of operational efficiency. System diagnostics later revealed that even shielded equipment was not immune to the effects of the anomaly, suggesting a form of electromagnetic interference previously unseen in natural or artificial occurrences.
