@@ -30,7 +30,10 @@ function loadFiles(files) {
     const fileGrid = document.getElementById('file-grid');
     fileGrid.innerHTML = '';
 
-    files.forEach((file, index) => {
+    let delay = 0;
+    const delayIncrement = 250;
+
+    files.forEach((file) => {
         if (!file.hidden || showHidden) {
             const fileItem = document.createElement('div');
             fileItem.classList.add('file-item');
@@ -66,7 +69,7 @@ function loadFiles(files) {
 
             if (file.hidden) {
                 fileItem.classList.add('hidden-file');
-                fileItem.style.opacity = '0.9';
+                fileItem.style.opacity = '0.5';
                 fileItemHTML += '<div class="hidden-label">Hidden</div>';
             }
 
@@ -80,12 +83,15 @@ function loadFiles(files) {
             // Add click listener to check the file and update style
             fileItem.addEventListener('click', () => showFilePopup(file, fileItem));
 
-            fileItem.style.opacity = file.hidden ? '0.5' : '0';
+            fileItem.style.opacity = '0';
             fileGrid.appendChild(fileItem);
+
             setTimeout(() => {
                 fileItem.style.transition = 'opacity 0.25s ease-out';
                 fileItem.style.opacity = file.hidden ? '0.5' : '1';
-            }, index * 250);
+            }, delay);
+
+            delay += delayIncrement;
         }
     });
 }
@@ -314,24 +320,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password-input');
     const submitButton = document.getElementById('submit-password');
     const errorMessage = document.getElementById('password-error');
-    const correctPassword = 'REMNANT';
 
-    function checkPassword() {
-        if (passwordInput.value === correctPassword) {
-            passwordOverlay.style.display = 'none';
-            loadMainContent();
-        } else {
-            errorMessage.textContent = 'Incorrect password. Access denied.';
-            passwordInput.value = '';
-        }
-    }
+    // Fetch the password from the JSON file
+    fetch('password.json')
+        .then(response => response.json())
+        .then(data => {
+            const correctPassword = data.password;
 
-    submitButton.addEventListener('click', checkPassword);
-    passwordInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            checkPassword();
-        }
-    });
+            function checkPassword() {
+                if (passwordInput.value === correctPassword) {
+                    passwordOverlay.style.display = 'none';
+                    loadMainContent();
+                } else {
+                    errorMessage.textContent = 'Incorrect password. Access denied.';
+                    passwordInput.value = '';
+                }
+            }
+
+            submitButton.addEventListener('click', checkPassword);
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading password:', error);
+            errorMessage.textContent = 'Error loading security data. Please try again later.';
+        });
 });
 
 function verifyPassword(enteredPassword, file, messageElement) {
