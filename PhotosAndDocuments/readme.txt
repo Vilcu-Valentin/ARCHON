@@ -12,10 +12,11 @@ To proceed:
 
 Compose a transmission to your designated source entity (ARCHON Ref. SE-053) and confirm your completion of Phase 1. This message will notify them of your readiness to continue.
 Continue monitoring for further communication. Future assignments will be dispatched based on your resonance score and cognitive patterning results.
+
 Communication Format:
 
-Secure Transmission Code: ARCHON-PROTO-SECURE
-Reference: SE-053-COMPL
+Secure Protocol: End-To-End Encryption
+Transmission Code: SE-053-COMPL
 Failure to send this transmission may delay your involvement in subsequent phases. No direct response will be received from the ARCHON system regarding this transmission.
 
 [DISCLAIMER]
